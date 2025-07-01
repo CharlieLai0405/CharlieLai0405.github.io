@@ -1,0 +1,331 @@
+<!DOCTYPE html><html lang="en" data-theme="light"><head><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width, initial-scale=1.0,viewport-fit=cover"><title>Build Chatbots with Amazon Bedrock | Charlie Lai</title><meta name="author" content="Charlie Lai"><meta name="copyright" content="Charlie Lai"><meta name="format-detection" content="telephone=no"><meta name="theme-color" content="#ffffff"><meta name="description" content="系統性介紹如何使用 Amazon Bedrock 建立企業級對話式 AI 應用，涵蓋 Knowledge Base 建構、Agent 設定、Prompt 管理、Flow 設計與 Guardrail 安全機制，協助開發者有效整合 LLM 與企業資料流程。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Build Chatbots with Amazon Bedrock">
+<meta property="og:url" content="http://example.com/2025/04/19/Build%20Chatbots%20with%20Amazon%20Bedrock/index.html">
+<meta property="og:site_name" content="Charlie Lai">
+<meta property="og:description" content="系統性介紹如何使用 Amazon Bedrock 建立企業級對話式 AI 應用，涵蓋 Knowledge Base 建構、Agent 設定、Prompt 管理、Flow 設計與 Guardrail 安全機制，協助開發者有效整合 LLM 與企業資料流程。">
+<meta property="og:locale" content="en_US">
+<meta property="og:image" content="http://example.com/img/charlie.jpg">
+<meta property="article:published_time" content="2025-04-19T04:00:00.000Z">
+<meta property="article:modified_time" content="2025-07-01T09:34:55.125Z">
+<meta property="article:author" content="Charlie Lai">
+<meta property="article:tag" content="Amazon Bedrock">
+<meta property="article:tag" content="Chatbot">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="http://example.com/img/charlie.jpg"><script type="application/ld+json">{
+  "@context": "https://schema.org",
+  "@type": "BlogPosting",
+  "headline": "Build Chatbots with Amazon Bedrock",
+  "url": "http://example.com/2025/04/19/Build%20Chatbots%20with%20Amazon%20Bedrock/",
+  "image": "http://example.com/img/charlie.jpg",
+  "datePublished": "2025-04-19T04:00:00.000Z",
+  "dateModified": "2025-07-01T09:34:55.125Z",
+  "author": [
+    {
+      "@type": "Person",
+      "name": "Charlie Lai",
+      "url": "http://example.com/"
+    }
+  ]
+}</script><link rel="shortcut icon" href="/img/logo.png"><link rel="canonical" href="http://example.com/2025/04/19/Build%20Chatbots%20with%20Amazon%20Bedrock/index.html"><link rel="preconnect" href="//cdn.jsdelivr.net"/><link rel="preconnect" href="//busuanzi.ibruce.info"/><link rel="stylesheet" href="/css/index.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free/css/all.min.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/node-snackbar/dist/snackbar.min.css" media="print" onload="this.media='all'"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/ui/dist/fancybox/fancybox.min.css" media="print" onload="this.media='all'"><script>
+    (() => {
+      
+    const saveToLocal = {
+      set: (key, value, ttl) => {
+        if (!ttl) return
+        const expiry = Date.now() + ttl * 86400000
+        localStorage.setItem(key, JSON.stringify({ value, expiry }))
+      },
+      get: key => {
+        const itemStr = localStorage.getItem(key)
+        if (!itemStr) return undefined
+        const { value, expiry } = JSON.parse(itemStr)
+        if (Date.now() > expiry) {
+          localStorage.removeItem(key)
+          return undefined
+        }
+        return value
+      }
+    }
+
+    window.btf = {
+      saveToLocal,
+      getScript: (url, attr = {}) => new Promise((resolve, reject) => {
+        const script = document.createElement('script')
+        script.src = url
+        script.async = true
+        Object.entries(attr).forEach(([key, val]) => script.setAttribute(key, val))
+        script.onload = script.onreadystatechange = () => {
+          if (!script.readyState || /loaded|complete/.test(script.readyState)) resolve()
+        }
+        script.onerror = reject
+        document.head.appendChild(script)
+      }),
+      getCSS: (url, id) => new Promise((resolve, reject) => {
+        const link = document.createElement('link')
+        link.rel = 'stylesheet'
+        link.href = url
+        if (id) link.id = id
+        link.onload = link.onreadystatechange = () => {
+          if (!link.readyState || /loaded|complete/.test(link.readyState)) resolve()
+        }
+        link.onerror = reject
+        document.head.appendChild(link)
+      }),
+      addGlobalFn: (key, fn, name = false, parent = window) => {
+        if (!false && key.startsWith('pjax')) return
+        const globalFn = parent.globalFn || {}
+        globalFn[key] = globalFn[key] || {}
+        globalFn[key][name || Object.keys(globalFn[key]).length] = fn
+        parent.globalFn = globalFn
+      }
+    }
+  
+      
+      const activateDarkMode = () => {
+        document.documentElement.setAttribute('data-theme', 'dark')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#0d0d0d')
+        }
+      }
+      const activateLightMode = () => {
+        document.documentElement.setAttribute('data-theme', 'light')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#ffffff')
+        }
+      }
+
+      btf.activateDarkMode = activateDarkMode
+      btf.activateLightMode = activateLightMode
+
+      const theme = saveToLocal.get('theme')
+    
+          theme === 'dark' ? activateDarkMode() : theme === 'light' ? activateLightMode() : null
+        
+      
+      const asideStatus = saveToLocal.get('aside-status')
+      if (asideStatus !== undefined) {
+        document.documentElement.classList.toggle('hide-aside', asideStatus === 'hide')
+      }
+    
+      
+    const detectApple = () => {
+      if (/iPad|iPhone|iPod|Macintosh/.test(navigator.userAgent)) {
+        document.documentElement.classList.add('apple')
+      }
+    }
+    detectApple()
+  
+    })()
+  </script><script>const GLOBAL_CONFIG = {
+  root: '/',
+  algolia: undefined,
+  localSearch: undefined,
+  translate: undefined,
+  highlight: {"plugin":"highlight.js","highlightCopy":true,"highlightLang":true,"highlightHeightLimit":false,"highlightFullpage":false,"highlightMacStyle":false},
+  copy: {
+    success: 'Copy Successful',
+    error: 'Copy Failed',
+    noSupport: 'Browser Not Supported'
+  },
+  relativeDate: {
+    homepage: false,
+    post: false
+  },
+  runtime: '',
+  dateSuffix: {
+    just: 'Just now',
+    min: 'minutes ago',
+    hour: 'hours ago',
+    day: 'days ago',
+    month: 'months ago'
+  },
+  copyright: {"limitCount":150,"languages":{"author":"Author: Charlie Lai","link":"Link: ","source":"Source: Charlie Lai","info":"Copyright belongs to the author. For commercial use, please contact the author for authorization. For non-commercial use, please indicate the source."}},
+  lightbox: 'fancybox',
+  Snackbar: {"chs_to_cht":"You have switched to Traditional Chinese","cht_to_chs":"You have switched to Simplified Chinese","day_to_night":"You have switched to Dark Mode","night_to_day":"You have switched to Light Mode","bgLight":"#49b1f5","bgDark":"#1f1f1f","position":"bottom-left"},
+  infinitegrid: {
+    js: 'https://cdn.jsdelivr.net/npm/@egjs/infinitegrid/dist/infinitegrid.min.js',
+    buttonText: 'Load More'
+  },
+  isPhotoFigcaption: false,
+  islazyloadPlugin: false,
+  isAnchor: false,
+  percent: {
+    toc: true,
+    rightside: true,
+  },
+  autoDarkmode: false
+}</script><script id="config-diff">var GLOBAL_CONFIG_SITE = {
+  title: 'Build Chatbots with Amazon Bedrock',
+  isHighlightShrink: false,
+  isToc: true,
+  pageType: 'post'
+}</script><meta name="generator" content="Hexo 7.3.0"></head><body><div id="sidebar"><div id="menu-mask"></div><div id="sidebar-menus"><div class="avatar-img text-center"><img src="/img/charlie.jpg" onerror="this.onerror=null;this.src='/img/friend_404.gif'" alt="avatar"/></div><div class="site-data text-center"><a href="/archives/"><div class="headline">Articles</div><div class="length-num">1</div></a><a href="/tags/"><div class="headline">Tags</div><div class="length-num">2</div></a><a href="/categories/"><div class="headline">Categories</div><div class="length-num">2</div></a></div><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> Home</span></a></div><div class="menus_item"><span class="site-page group"><i class="fa-fw fas fa-archive"></i><span> Archives</span><i class="fas fa-chevron-down"></i></span><ul class="menus_item_child"><li><a class="site-page child" href="/tags/"><i class="fa-fw fas fa-tags"></i><span> Tags</span></a></li><li><a class="site-page child" href="/categories/"><i class="fa-fw fas fa-folder-open"></i><span> Categories</span></a></li></ul></div><div class="menus_item"><a class="site-page" href="/archives/"><i class="fa-fw fas fa-calendar-alt"></i><span> Timeline</span></a></div><div class="menus_item"><span class="site-page group"><i class="fa-fw fas fa-heart"></i><span> About</span><i class="fas fa-chevron-down"></i></span><ul class="menus_item_child"><li><a class="site-page child" target="_blank" rel="noopener" href="https://github.com/CharlieLai0405"><i class="fa-fw fab fa-github"></i><span> Github</span></a></li><li><a class="site-page child" href="/charlie123456789@gmail.com"><i class="fa-fw fas fa-envelope"></i><span> Email</span></a></li></ul></div></div></div></div><div class="post" id="body-wrap"><header class="post-bg fixed" id="page-header" style="background-image: url(/img/default_top_img.jpg);"><nav id="nav"><span id="blog-info"><a class="nav-site-title" href="/"><img class="site-icon" src="/img/logo.png" alt="Logo"><span class="site-name">Charlie Lai</span></a><a class="nav-page-title" href="/"><span class="site-name">Build Chatbots with Amazon Bedrock</span></a></span><div id="menus"><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> Home</span></a></div><div class="menus_item"><span class="site-page group"><i class="fa-fw fas fa-archive"></i><span> Archives</span><i class="fas fa-chevron-down"></i></span><ul class="menus_item_child"><li><a class="site-page child" href="/tags/"><i class="fa-fw fas fa-tags"></i><span> Tags</span></a></li><li><a class="site-page child" href="/categories/"><i class="fa-fw fas fa-folder-open"></i><span> Categories</span></a></li></ul></div><div class="menus_item"><a class="site-page" href="/archives/"><i class="fa-fw fas fa-calendar-alt"></i><span> Timeline</span></a></div><div class="menus_item"><span class="site-page group"><i class="fa-fw fas fa-heart"></i><span> About</span><i class="fas fa-chevron-down"></i></span><ul class="menus_item_child"><li><a class="site-page child" target="_blank" rel="noopener" href="https://github.com/CharlieLai0405"><i class="fa-fw fab fa-github"></i><span> Github</span></a></li><li><a class="site-page child" href="/charlie123456789@gmail.com"><i class="fa-fw fas fa-envelope"></i><span> Email</span></a></li></ul></div></div><div id="toggle-menu"><span class="site-page"><i class="fas fa-bars fa-fw"></i></span></div></div></nav><div id="post-info"><h1 class="post-title">Build Chatbots with Amazon Bedrock</h1><div id="post-meta"><div class="meta-firstline"><span class="post-meta-date"><i class="far fa-calendar-alt fa-fw post-meta-icon"></i><span class="post-meta-label">Created</span><time class="post-meta-date-created" datetime="2025-04-19T04:00:00.000Z" title="Created 2025-04-19 12:00:00">2025-04-19</time><span class="post-meta-separator">|</span><i class="fas fa-history fa-fw post-meta-icon"></i><span class="post-meta-label">Updated</span><time class="post-meta-date-updated" datetime="2025-07-01T09:34:55.125Z" title="Updated 2025-07-01 17:34:55">2025-07-01</time></span><span class="post-meta-categories"><span class="post-meta-separator">|</span><i class="fas fa-inbox fa-fw post-meta-icon"></i><a class="post-meta-categories" href="/categories/AWS/">AWS</a><i class="fas fa-angle-right post-meta-separator"></i><i class="fas fa-inbox fa-fw post-meta-icon"></i><a class="post-meta-categories" href="/categories/AWS/Amazon-Bedrock/">Amazon Bedrock</a></span></div><div class="meta-secondline"><span class="post-meta-separator">|</span><span class="post-meta-pv-cv" id="" data-flag-title=""><i class="far fa-eye fa-fw post-meta-icon"></i><span class="post-meta-label">Post Views:</span><span id="busuanzi_value_page_pv"><i class="fa-solid fa-spinner fa-spin"></i></span></span></div></div></div></header><main class="layout" id="content-inner"><div id="post"><article class="container post-content" id="article-container"><h1 id="Build-Chatbots-with-Amazon-Bedrock"><a href="#Build-Chatbots-with-Amazon-Bedrock" class="headerlink" title="Build Chatbots with Amazon Bedrock"></a>Build Chatbots with Amazon Bedrock</h1><h2 id="Amazon-Bedrock"><a href="#Amazon-Bedrock" class="headerlink" title="Amazon Bedrock"></a>Amazon Bedrock</h2><h2 id="How-it-works"><a href="#How-it-works" class="headerlink" title="How it works"></a>How it works</h2><p><img src="https://hackmd.io/_uploads/r1T1QIt01e.png" alt="image"></p>
+<h2 id="Prerequisites"><a href="#Prerequisites" class="headerlink" title="Prerequisites"></a>Prerequisites</h2><ol>
+<li>Download PDF Guide from <a target="_blank" rel="noopener" href="https://selling-guide.fanniemae.com/">Guidelines</a></li>
+<li>在 Search 找到 <strong>S3</strong> 去 create 一個 <code>create-customer-resources-kb-bucket</code></li>
+<li>接著在 Search 找到 <strong>Bedrock</strong>，選擇 <strong>Amazon Bedrock</strong></li>
+<li>在側邊欄位選擇 <strong>Model access</strong></li>
+</ol>
+<p><img src="https://hackmd.io/_uploads/B1dLHLtRke.png" alt="image"></p>
+<ol start="5">
+<li>選擇 <strong>Enable specific models</strong> 來選擇想要用的模型</li>
+</ol>
+<h2 id="Knowledge-base-for-Amazon-Bedrock"><a href="#Knowledge-base-for-Amazon-Bedrock" class="headerlink" title="Knowledge base for Amazon Bedrock"></a>Knowledge base for Amazon Bedrock</h2><h3 id="Create-Knowledge-base"><a href="#Create-Knowledge-base" class="headerlink" title="Create Knowledge base"></a>Create Knowledge base</h3><ol>
+<li>一樣在 <strong>Amazon Bedrock</strong> 的側欄選擇 <strong>Knowledge bases</strong></li>
+</ol>
+<p><img src="https://hackmd.io/_uploads/ry6tUUtAye.png" alt="image"></p>
+<ol start="2">
+<li>根據需求選擇格式，可選 <strong>Knowledge Base with vector store</strong></li>
+</ol>
+<p><img src="https://hackmd.io/_uploads/ry0688tAyl.png" alt="image"></p>
+<ol start="3">
+<li>參考範例建立 Knowledge Base</li>
+</ol>
+<p><img src="https://hackmd.io/_uploads/Bk1lvLYCJg.png" alt="image"></p>
+<ol start="4">
+<li>建立完後可上傳資料，記得 <strong>Sync(同步)</strong></li>
+</ol>
+<p><img src="https://hackmd.io/_uploads/rJC8hUKAyl.png" alt="image"></p>
+<h3 id="Test-Knowledge-base"><a href="#Test-Knowledge-base" class="headerlink" title="Test Knowledge base"></a>Test Knowledge base</h3><ol>
+<li>同步完可先關掉 <strong>Generate responses</strong></li>
+</ol>
+<p><img src="https://hackmd.io/_uploads/ByaC3ItCke.png" alt="image"></p>
+<ol start="2">
+<li>Amazon Bedrock 會只傳回相關資料來源中的文字。</li>
+</ol>
+<h2 id="Agents-for-Amazon-Bedrock"><a href="#Agents-for-Amazon-Bedrock" class="headerlink" title="Agents for Amazon Bedrock"></a>Agents for Amazon Bedrock</h2><h3 id="How-it-works-1"><a href="#How-it-works-1" class="headerlink" title="How it works"></a>How it works</h3><p><img src="https://hackmd.io/_uploads/SyAST8KCkx.png" alt="image"></p>
+<h3 id="Prerequisites-1"><a href="#Prerequisites-1" class="headerlink" title="Prerequisites"></a>Prerequisites</h3><ol>
+<li>下載 <a target="_blank" rel="noopener" href="https://ws-assets-prod-iad-r-pdx-f3b3f9f1a7d6a3d0.s3.us-west-2.amazonaws.com/1e5b6626-f63c-41d7-adcb-4a3cdfd279ac/api-schema.zip">api-schema</a></li>
+<li>將 <code>loan_calculator.json</code> 和 <code>mls_lookup.json</code> 上傳到剛剛建立的 Knowledge Base 中</li>
+</ol>
+<p><img src="https://hackmd.io/_uploads/HJw9CIFR1l.png" alt="image"></p>
+<h3 id="Create-an-Agent"><a href="#Create-an-Agent" class="headerlink" title="Create an Agent"></a>Create an Agent</h3><ol>
+<li>側欄選擇 <strong>Agents</strong> → Create Agent</li>
+</ol>
+<p><img src="https://hackmd.io/_uploads/r1AsyPt0Je.png" alt="image"></p>
+<ul>
+<li>若需多個 Agent 並行，可勾選 Enable multi-agent collaboration</li>
+</ul>
+<ol start="2">
+<li>設定使用的模型與功能</li>
+</ol>
+<p><img src="https://hackmd.io/_uploads/BJr0ePYRke.png" alt="image"></p>
+<h4 id="Add-Action-Groups"><a href="#Add-Action-Groups" class="headerlink" title="Add Action Groups"></a>Add Action Groups</h4><p><img src="https://hackmd.io/_uploads/HkTVWwFC1x.png" alt="image"><br><img src="https://hackmd.io/_uploads/ByGSWDYR1x.png" alt="image"><br><img src="https://hackmd.io/_uploads/ryDBZDYRJg.png" alt="image"><br><img src="https://hackmd.io/_uploads/ryjHbDKAkx.png" alt="image"><br><img src="https://hackmd.io/_uploads/SyeIbwKRJl.png" alt="image"></p>
+<h4 id="Add-Knowledge-Bases"><a href="#Add-Knowledge-Bases" class="headerlink" title="Add Knowledge Bases"></a>Add Knowledge Bases</h4><p><img src="https://hackmd.io/_uploads/Hy5L-vF0ke.png" alt="image"><br><img src="https://hackmd.io/_uploads/S1xDZvKAJl.png" alt="image"><br><img src="https://hackmd.io/_uploads/B1Bv-vYAye.png" alt="image"></p>
+<h2 id="Create-Prompts-using-Prompt-Management"><a href="#Create-Prompts-using-Prompt-Management" class="headerlink" title="Create Prompts using Prompt Management"></a>Create Prompts using Prompt Management</h2><ol>
+<li>側欄選擇 <strong>Prompt Management</strong></li>
+</ol>
+<p><img src="https://hackmd.io/_uploads/S1jMfDKCJe.png" alt="image"></p>
+<ol start="2">
+<li>範例 prompt：</li>
+</ol>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line">Generate a question asking if the user will qualify for a loan for the specified criteria.</span><br><span class="line"></span><br><span class="line">Include instruction to base the answer on key features of the property retrived from MLS listing.</span><br><span class="line"></span><br><span class="line">Start with &quot;will an applicant...&quot;.</span><br><span class="line"></span><br><span class="line">&#123; &quot;income&quot;: &#123;&#123;income&#125;&#125;, &quot;creditScore&quot;: &#123;&#123;creditScore&#125;&#125;, &quot;totalDebt&quot;: &#123;&#123;totalDebt&#125;&#125;, &quot;loanAmount&quot;: &#123;&#123;loanAmount&#125;&#125;, &quot;mlsId&quot;: &#123;&#123;mlsId&#125;&#125; &#125;</span><br><span class="line"></span><br><span class="line">Include a second question on loan requirements an applicant with the below attributes should consider for a Fannie Mae backed loan (other than debt to income).</span><br><span class="line"></span><br><span class="line">````</span><br><span class="line"></span><br><span class="line">![image](https://hackmd.io/_uploads/B1vXQDFRyl.png)</span><br><span class="line"></span><br><span class="line">- `&#123;&#123;variable&#125;&#125;` 是變數範本，例如：income、creditScore、loanAmount 等</span><br><span class="line"></span><br><span class="line">3. 設定 Model 參數（Configurations）</span><br><span class="line"></span><br><span class="line">![image](https://hackmd.io/_uploads/r1qgNwF0ke.png)</span><br><span class="line">![image](https://hackmd.io/_uploads/HkznEwt01l.png)</span><br><span class="line"></span><br><span class="line">- Temperature 控制回答創造力，數值介於 0 到 1</span><br><span class="line"></span><br><span class="line">## Amazon Bedrock Flows</span><br><span class="line"></span><br><span class="line">### How it works</span><br><span class="line">![image](https://hackmd.io/_uploads/SJ0iZvY0Je.png)</span><br><span class="line"></span><br><span class="line">### Create a guardrail (flow)</span><br><span class="line">1. 自行建立流程需注意：</span><br><span class="line"></span><br><span class="line">- 型別欄位：Name、Type、Expression</span><br><span class="line"></span><br><span class="line">範例 input：</span><br><span class="line"></span><br><span class="line">```json</span><br><span class="line">&#123; &quot;income&quot;: 80000, &quot;totalDebt&quot;: 5000, &quot;loanTerm&quot;: 30, &quot;loanAmount&quot;: 600000, &quot;creditScore&quot;: 750, &quot;mlsId&quot;: &quot;MLS-3456&quot; &#125;</span><br><span class="line">````</span><br><span class="line"></span><br><span class="line">範例定義：</span><br><span class="line"></span><br><span class="line">```text</span><br><span class="line">Name: loanTerm</span><br><span class="line">Type: Number</span><br><span class="line">Expression: $.data.loanTerm</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">Name: mlsId</span><br><span class="line">Type: String</span><br><span class="line">Expression: $.data.mlsId</span><br></pre></td></tr></table></figure>
+
+<ol start="2">
+<li>Flow 圖範例：</li>
+</ol>
+<p><img src="https://hackmd.io/_uploads/BynuwPYCJe.png" alt="image"></p>
+<h2 id="Create-a-Guardrail"><a href="#Create-a-Guardrail" class="headerlink" title="Create a Guardrail"></a>Create a Guardrail</h2><h3 id="步驟"><a href="#步驟" class="headerlink" title="步驟"></a>步驟</h3><ol>
+<li>側欄 Safeguards → Guardrails → 新增</li>
+</ol>
+<p><img src="https://hackmd.io/_uploads/BywQOPFCJl.png" alt="image"></p>
+<ol start="2">
+<li>可設定 Content Filters（可保留預設）</li>
+</ol>
+<p><img src="https://hackmd.io/_uploads/SJL9_wYCJl.png" alt="image"></p>
+<ol start="3">
+<li>加入 Topics 範例：</li>
+</ol>
+<ul>
+<li>Name: Investment Advice</li>
+<li>Definition:</li>
+</ul>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">Investment advice refers to inquires, guidance or recommendations regarding the management or allocation of fund or asset with the goal of generating returns or achieving specific financial objectives</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>Sample Phrases:</li>
+</ul>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">Is investing in the stocks better than bonds?</span><br><span class="line">Should I invest in gold?</span><br></pre></td></tr></table></figure>
+
+<ol start="4">
+<li>加入 Words Filters：</li>
+</ol>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">crypto currency</span><br><span class="line">bitcoin</span><br></pre></td></tr></table></figure>
+
+<ol start="5">
+<li>加入 Sensitive Information Filters：</li>
+</ol>
+<ul>
+<li>Add new PII → Email → Block or Mask</li>
+<li>Credit&#x2F;Debit card number → Block or Mask</li>
+</ul>
+<ol start="6">
+<li>調整 Grounding &amp; Relevance：</li>
+</ol>
+<ul>
+<li>Grounding score threshold：0.85</li>
+<li>Relevance score threshold：0.5</li>
+</ul>
+<p><img src="https://hackmd.io/_uploads/Hkrx2wYRJl.png" alt="image"><br><img src="https://hackmd.io/_uploads/B1ql3PtRkg.png" alt="image"></p>
+<h3 id="Test-the-Guardrail"><a href="#Test-the-Guardrail" class="headerlink" title="Test the Guardrail"></a>Test the Guardrail</h3><figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">Please summarize the below call center transcript. Put the name, email and the customer ID to the top:</span><br><span class="line"></span><br><span class="line">Agent: Welcome to ABC company. How can I help you today?</span><br><span class="line">Customer: I want to cancel my hotel booking.</span><br><span class="line">Agent: Sure, I can help you with the cancellation. Can you please provide your customer ID?</span><br><span class="line">Customer: Yes, my customer Id is trx-1234.</span><br><span class="line">Agent: Thank you. Can I have your name and email for confirmation?</span><br><span class="line">Customer: My name is Jane Doe and my email is jane.doe@gmail.com</span><br><span class="line">Agent: Thank you for confirming. I will go ahead and cancel your reservation.</span><br></pre></td></tr></table></figure>
+
+<p>測試結果：<br><img src="https://hackmd.io/_uploads/Bkwr2vY0Jg.png" alt="image"></p>
+<pre><code>
+</code></pre>
+</article><div class="post-copyright"><div class="post-copyright__author"><span class="post-copyright-meta"><i class="fas fa-circle-user fa-fw"></i>Author: </span><span class="post-copyright-info"><a href="http://example.com">Charlie Lai</a></span></div><div class="post-copyright__type"><span class="post-copyright-meta"><i class="fas fa-square-arrow-up-right fa-fw"></i>Link: </span><span class="post-copyright-info"><a href="http://example.com/2025/04/19/Build%20Chatbots%20with%20Amazon%20Bedrock/">http://example.com/2025/04/19/Build Chatbots with Amazon Bedrock/</a></span></div><div class="post-copyright__notice"><span class="post-copyright-meta"><i class="fas fa-circle-exclamation fa-fw"></i>Copyright Notice: </span><span class="post-copyright-info">All articles on this blog are licensed under <a target="_blank" rel="noopener" href="https://creativecommons.org/licenses/by-nc-sa/4.0/">CC BY-NC-SA 4.0</a> unless otherwise stated.</span></div></div><div class="tag_share"><div class="post-meta__tag-list"><a class="post-meta__tags" href="/tags/Amazon-Bedrock/">Amazon Bedrock</a><a class="post-meta__tags" href="/tags/Chatbot/">Chatbot</a></div><div class="post-share"><div class="social-share" data-image="/img/charlie.jpg" data-sites="facebook,twitter,wechat,weibo,qq"></div><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/butterfly-extsrc/sharejs/dist/css/share.min.css" media="print" onload="this.media='all'"><script src="https://cdn.jsdelivr.net/npm/butterfly-extsrc/sharejs/dist/js/social-share.min.js" defer></script></div></div><nav class="pagination-post" id="pagination"></nav></div><div class="aside-content" id="aside-content"><div class="card-widget card-info text-center"><div class="avatar-img"><img src="/img/charlie.jpg" onerror="this.onerror=null;this.src='/img/friend_404.gif'" alt="avatar"/></div><div class="author-info-name">Charlie Lai</div><div class="author-info-description">CS Master’s student @ NCU | C++ / Python / Docker | AI & backend projects</div><div class="site-data"><a href="/archives/"><div class="headline">Articles</div><div class="length-num">1</div></a><a href="/tags/"><div class="headline">Tags</div><div class="length-num">2</div></a><a href="/categories/"><div class="headline">Categories</div><div class="length-num">2</div></a></div><a id="card-info-btn" target="_blank" rel="noopener" href="https://github.com/CharlieLai0405"><i class="fab fa-github"></i><span>Follow Me</span></a><div class="card-info-social-icons"><a class="social-icon" href="https://github.com/CharlieLai0405" target="_blank" title="Github"><i class="fab fa-github" style="color: #24292e;"></i></a><a class="social-icon" href="mailto:charlie123456789@gmail.com" target="_blank" title="Email"><i class="fas fa-envelope" style="color: #4a7dbe;"></i></a></div></div><div class="card-widget card-announcement"><div class="item-headline"><i class="fas fa-bullhorn fa-shake"></i><span>Announcement</span></div><div class="announcement_content">Building, learning, and growing on the path to my dreams.</div></div><div class="sticky_layout"><div class="card-widget" id="card-toc"><div class="item-headline"><i class="fas fa-stream"></i><span>Contents</span><span class="toc-percentage"></span></div><div class="toc-content"><ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#Build-Chatbots-with-Amazon-Bedrock"><span class="toc-number">1.</span> <span class="toc-text">Build Chatbots with Amazon Bedrock</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#Amazon-Bedrock"><span class="toc-number">1.1.</span> <span class="toc-text">Amazon Bedrock</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#How-it-works"><span class="toc-number">1.2.</span> <span class="toc-text">How it works</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Prerequisites"><span class="toc-number">1.3.</span> <span class="toc-text">Prerequisites</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Knowledge-base-for-Amazon-Bedrock"><span class="toc-number">1.4.</span> <span class="toc-text">Knowledge base for Amazon Bedrock</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#Create-Knowledge-base"><span class="toc-number">1.4.1.</span> <span class="toc-text">Create Knowledge base</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Test-Knowledge-base"><span class="toc-number">1.4.2.</span> <span class="toc-text">Test Knowledge base</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Agents-for-Amazon-Bedrock"><span class="toc-number">1.5.</span> <span class="toc-text">Agents for Amazon Bedrock</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#How-it-works-1"><span class="toc-number">1.5.1.</span> <span class="toc-text">How it works</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Prerequisites-1"><span class="toc-number">1.5.2.</span> <span class="toc-text">Prerequisites</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Create-an-Agent"><span class="toc-number">1.5.3.</span> <span class="toc-text">Create an Agent</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#Add-Action-Groups"><span class="toc-number">1.5.3.1.</span> <span class="toc-text">Add Action Groups</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#Add-Knowledge-Bases"><span class="toc-number">1.5.3.2.</span> <span class="toc-text">Add Knowledge Bases</span></a></li></ol></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Create-Prompts-using-Prompt-Management"><span class="toc-number">1.6.</span> <span class="toc-text">Create Prompts using Prompt Management</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Create-a-Guardrail"><span class="toc-number">1.7.</span> <span class="toc-text">Create a Guardrail</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%AD%A5%E9%A9%9F"><span class="toc-number">1.7.1.</span> <span class="toc-text">步驟</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Test-the-Guardrail"><span class="toc-number">1.7.2.</span> <span class="toc-text">Test the Guardrail</span></a></li></ol></li></ol></li></ol></div></div><div class="card-widget card-recent-post"><div class="item-headline"><i class="fas fa-history"></i><span>Recent Posts</span></div><div class="aside-list"><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/2025/04/19/Build%20Chatbots%20with%20Amazon%20Bedrock/" title="Build Chatbots with Amazon Bedrock">Build Chatbots with Amazon Bedrock</a><time datetime="2025-07-01T09:34:55.125Z" title="Updated 2025-07-01 17:34:55">2025-07-01</time></div></div></div></div></div></div></main><footer id="footer"><div id="footer-wrap"><div class="copyright">&copy;2025 By Charlie Lai</div><div class="framework-info"><span>Framework </span><a target="_blank" rel="noopener" href="https://hexo.io">Hexo 7.3.0</a><span class="footer-separator">|</span><span>Theme </span><a target="_blank" rel="noopener" href="https://github.com/jerryc127/hexo-theme-butterfly">Butterfly 5.3.5</a></div></div></footer></div><div id="rightside"><div id="rightside-config-hide"><button id="readmode" type="button" title="Reading Mode"><i class="fas fa-book-open"></i></button><button id="darkmode" type="button" title="Toggle Between Light and Dark Mode"><i class="fas fa-adjust"></i></button><button id="hide-aside-btn" type="button" title="Toggle Between Single-column and Double-column"><i class="fas fa-arrows-alt-h"></i></button></div><div id="rightside-config-show"><button id="rightside-config" type="button" title="Settings"><i class="fas fa-cog fa-spin"></i></button><button class="close" id="mobile-toc-button" type="button" title="Table of Contents"><i class="fas fa-list-ul"></i></button><button id="go-up" type="button" title="Back to Top"><span class="scroll-percent"></span><i class="fas fa-arrow-up"></i></button></div></div><div><script src="/js/utils.js"></script><script src="/js/main.js"></script><script src="https://cdn.jsdelivr.net/npm/@fancyapps/ui/dist/fancybox/fancybox.umd.min.js"></script><script src="https://cdn.jsdelivr.net/npm/node-snackbar/dist/snackbar.min.js"></script><div class="js-pjax"><script>(() => {
+  const runMermaid = ele => {
+    window.loadMermaid = true
+    const theme = document.documentElement.getAttribute('data-theme') === 'dark' ? 'dark' : 'default'
+
+    ele.forEach((item, index) => {
+      const mermaidSrc = item.firstElementChild
+      const mermaidThemeConfig = `%%{init:{ 'theme':'${theme}'}}%%\n`
+      const mermaidID = `mermaid-${index}`
+      const mermaidDefinition = mermaidThemeConfig + mermaidSrc.textContent
+
+      const renderFn = mermaid.render(mermaidID, mermaidDefinition)
+      const renderMermaid = svg => {
+        mermaidSrc.insertAdjacentHTML('afterend', svg)
+      }
+
+      // mermaid v9 and v10 compatibility
+      typeof renderFn === 'string' ? renderMermaid(renderFn) : renderFn.then(({ svg }) => renderMermaid(svg))
+    })
+  }
+
+  const codeToMermaid = () => {
+    const codeMermaidEle = document.querySelectorAll('pre > code.mermaid')
+    if (codeMermaidEle.length === 0) return
+
+    codeMermaidEle.forEach(ele => {
+      const preEle = document.createElement('pre')
+      preEle.className = 'mermaid-src'
+      preEle.hidden = true
+      preEle.textContent = ele.textContent
+      const newEle = document.createElement('div')
+      newEle.className = 'mermaid-wrap'
+      newEle.appendChild(preEle)
+      ele.parentNode.replaceWith(newEle)
+    })
+  }
+
+  const loadMermaid = () => {
+    if (true) codeToMermaid()
+    const $mermaid = document.querySelectorAll('#article-container .mermaid-wrap')
+    if ($mermaid.length === 0) return
+
+    const runMermaidFn = () => runMermaid($mermaid)
+    btf.addGlobalFn('themeChange', runMermaidFn, 'mermaid')
+    window.loadMermaid ? runMermaidFn() : btf.getScript('https://cdn.jsdelivr.net/npm/mermaid/dist/mermaid.min.js').then(runMermaidFn)
+  }
+
+  btf.addGlobalFn('encrypt', loadMermaid, 'mermaid')
+  window.pjax ? loadMermaid() : document.addEventListener('DOMContentLoaded', loadMermaid)
+})()</script></div><script id="canvas_nest" defer="defer" color="0,0,255" opacity="0.7" zIndex="-1" count="99" mobile="false" src="https://cdn.jsdelivr.net/npm/butterfly-extsrc/dist/canvas-nest.min.js"></script><script src="https://cdn.jsdelivr.net/npm/butterfly-extsrc/dist/activate-power-mode.min.js"></script><script>POWERMODE.colorful = true;
+POWERMODE.shake = true;
+POWERMODE.mobile = true;
+document.body.addEventListener('input', POWERMODE);
+</script><script id="click-show-text" src="https://cdn.jsdelivr.net/npm/butterfly-extsrc/dist/click-show-text.min.js" data-mobile="false" data-text="Me,Hire" data-fontsize="15px" data-random="false" async="async"></script><script async data-pjax src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script></div></body></html>
