@@ -1,0 +1,249 @@
+<!DOCTYPE html><html lang="en" data-theme="light"><head><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width, initial-scale=1.0,viewport-fit=cover"><title>MacOS 如何安裝 Anything LLM | Charlie Lai</title><meta name="author" content="Charlie Lai"><meta name="copyright" content="Charlie Lai"><meta name="format-detection" content="telephone=no"><meta name="theme-color" content="#ffffff"><meta name="description" content="如何在 macOS 上安裝與啟動 AnythingLLM，包括 Homebrew、Docker、Node.js 安裝與本機端 Ollama 模型整合，完整操作流程與指令範例一應俱全。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="MacOS 如何安裝 Anything LLM">
+<meta property="og:url" content="http://example.com/2025/04/24/Anything_LLM%20_MacOS/index.html">
+<meta property="og:site_name" content="Charlie Lai">
+<meta property="og:description" content="如何在 macOS 上安裝與啟動 AnythingLLM，包括 Homebrew、Docker、Node.js 安裝與本機端 Ollama 模型整合，完整操作流程與指令範例一應俱全。">
+<meta property="og:locale" content="en_US">
+<meta property="og:image" content="http://example.com/img/charlie.jpg">
+<meta property="article:published_time" content="2025-04-24T04:00:00.000Z">
+<meta property="article:modified_time" content="2025-07-08T12:34:03.906Z">
+<meta property="article:author" content="Charlie Lai">
+<meta property="article:tag" content="AnythingLLM">
+<meta property="article:tag" content="Docker">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="http://example.com/img/charlie.jpg"><script type="application/ld+json">{
+  "@context": "https://schema.org",
+  "@type": "BlogPosting",
+  "headline": "MacOS 如何安裝 Anything LLM",
+  "url": "http://example.com/2025/04/24/Anything_LLM%20_MacOS/",
+  "image": "http://example.com/img/charlie.jpg",
+  "datePublished": "2025-04-24T04:00:00.000Z",
+  "dateModified": "2025-07-08T12:34:03.906Z",
+  "author": [
+    {
+      "@type": "Person",
+      "name": "Charlie Lai",
+      "url": "http://example.com/"
+    }
+  ]
+}</script><link rel="shortcut icon" href="/img/logo.png"><link rel="canonical" href="http://example.com/2025/04/24/Anything_LLM%20_MacOS/index.html"><link rel="preconnect" href="//cdn.jsdelivr.net"/><link rel="preconnect" href="//busuanzi.ibruce.info"/><link rel="stylesheet" href="/css/index.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free/css/all.min.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/node-snackbar/dist/snackbar.min.css" media="print" onload="this.media='all'"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/ui/dist/fancybox/fancybox.min.css" media="print" onload="this.media='all'"><script>
+    (() => {
+      
+    const saveToLocal = {
+      set: (key, value, ttl) => {
+        if (!ttl) return
+        const expiry = Date.now() + ttl * 86400000
+        localStorage.setItem(key, JSON.stringify({ value, expiry }))
+      },
+      get: key => {
+        const itemStr = localStorage.getItem(key)
+        if (!itemStr) return undefined
+        const { value, expiry } = JSON.parse(itemStr)
+        if (Date.now() > expiry) {
+          localStorage.removeItem(key)
+          return undefined
+        }
+        return value
+      }
+    }
+
+    window.btf = {
+      saveToLocal,
+      getScript: (url, attr = {}) => new Promise((resolve, reject) => {
+        const script = document.createElement('script')
+        script.src = url
+        script.async = true
+        Object.entries(attr).forEach(([key, val]) => script.setAttribute(key, val))
+        script.onload = script.onreadystatechange = () => {
+          if (!script.readyState || /loaded|complete/.test(script.readyState)) resolve()
+        }
+        script.onerror = reject
+        document.head.appendChild(script)
+      }),
+      getCSS: (url, id) => new Promise((resolve, reject) => {
+        const link = document.createElement('link')
+        link.rel = 'stylesheet'
+        link.href = url
+        if (id) link.id = id
+        link.onload = link.onreadystatechange = () => {
+          if (!link.readyState || /loaded|complete/.test(link.readyState)) resolve()
+        }
+        link.onerror = reject
+        document.head.appendChild(link)
+      }),
+      addGlobalFn: (key, fn, name = false, parent = window) => {
+        if (!false && key.startsWith('pjax')) return
+        const globalFn = parent.globalFn || {}
+        globalFn[key] = globalFn[key] || {}
+        globalFn[key][name || Object.keys(globalFn[key]).length] = fn
+        parent.globalFn = globalFn
+      }
+    }
+  
+      
+      const activateDarkMode = () => {
+        document.documentElement.setAttribute('data-theme', 'dark')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#0d0d0d')
+        }
+      }
+      const activateLightMode = () => {
+        document.documentElement.setAttribute('data-theme', 'light')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#ffffff')
+        }
+      }
+
+      btf.activateDarkMode = activateDarkMode
+      btf.activateLightMode = activateLightMode
+
+      const theme = saveToLocal.get('theme')
+    
+          theme === 'dark' ? activateDarkMode() : theme === 'light' ? activateLightMode() : null
+        
+      
+      const asideStatus = saveToLocal.get('aside-status')
+      if (asideStatus !== undefined) {
+        document.documentElement.classList.toggle('hide-aside', asideStatus === 'hide')
+      }
+    
+      
+    const detectApple = () => {
+      if (/iPad|iPhone|iPod|Macintosh/.test(navigator.userAgent)) {
+        document.documentElement.classList.add('apple')
+      }
+    }
+    detectApple()
+  
+    })()
+  </script><script>const GLOBAL_CONFIG = {
+  root: '/',
+  algolia: undefined,
+  localSearch: undefined,
+  translate: undefined,
+  highlight: {"plugin":"highlight.js","highlightCopy":true,"highlightLang":true,"highlightHeightLimit":false,"highlightFullpage":false,"highlightMacStyle":false},
+  copy: {
+    success: 'Copy Successful',
+    error: 'Copy Failed',
+    noSupport: 'Browser Not Supported'
+  },
+  relativeDate: {
+    homepage: false,
+    post: false
+  },
+  runtime: '',
+  dateSuffix: {
+    just: 'Just now',
+    min: 'minutes ago',
+    hour: 'hours ago',
+    day: 'days ago',
+    month: 'months ago'
+  },
+  copyright: {"limitCount":150,"languages":{"author":"Author: Charlie Lai","link":"Link: ","source":"Source: Charlie Lai","info":"Copyright belongs to the author. For commercial use, please contact the author for authorization. For non-commercial use, please indicate the source."}},
+  lightbox: 'fancybox',
+  Snackbar: {"chs_to_cht":"You have switched to Traditional Chinese","cht_to_chs":"You have switched to Simplified Chinese","day_to_night":"You have switched to Dark Mode","night_to_day":"You have switched to Light Mode","bgLight":"#49b1f5","bgDark":"#1f1f1f","position":"bottom-left"},
+  infinitegrid: {
+    js: 'https://cdn.jsdelivr.net/npm/@egjs/infinitegrid/dist/infinitegrid.min.js',
+    buttonText: 'Load More'
+  },
+  isPhotoFigcaption: false,
+  islazyloadPlugin: false,
+  isAnchor: false,
+  percent: {
+    toc: true,
+    rightside: true,
+  },
+  autoDarkmode: false
+}</script><script id="config-diff">var GLOBAL_CONFIG_SITE = {
+  title: 'MacOS 如何安裝 Anything LLM',
+  isHighlightShrink: false,
+  isToc: true,
+  pageType: 'post'
+}</script><meta name="generator" content="Hexo 7.3.0"></head><body><div id="sidebar"><div id="menu-mask"></div><div id="sidebar-menus"><div class="avatar-img text-center"><img src="/img/charlie.jpg" onerror="this.onerror=null;this.src='/img/friend_404.gif'" alt="avatar"/></div><div class="site-data text-center"><a href="/archives/"><div class="headline">Articles</div><div class="length-num">4</div></a><a href="/tags/"><div class="headline">Tags</div><div class="length-num">7</div></a><a href="/categories/"><div class="headline">Categories</div><div class="length-num">3</div></a></div><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> Home</span></a></div><div class="menus_item"><span class="site-page group"><i class="fa-fw fas fa-archive"></i><span> Archives</span><i class="fas fa-chevron-down"></i></span><ul class="menus_item_child"><li><a class="site-page child" href="/tags/"><i class="fa-fw fas fa-tags"></i><span> Tags</span></a></li><li><a class="site-page child" href="/categories/"><i class="fa-fw fas fa-folder-open"></i><span> Categories</span></a></li></ul></div><div class="menus_item"><a class="site-page" href="/archives/"><i class="fa-fw fas fa-calendar-alt"></i><span> Timeline</span></a></div><div class="menus_item"><span class="site-page group"><i class="fa-fw fas fa-heart"></i><span> About</span><i class="fas fa-chevron-down"></i></span><ul class="menus_item_child"><li><a class="site-page child" target="_blank" rel="noopener" href="https://github.com/CharlieLai0405"><i class="fa-fw fab fa-github"></i><span> Github</span></a></li><li><a class="site-page child" href="/charlie123456789@gmail.com"><i class="fa-fw fas fa-envelope"></i><span> Email</span></a></li></ul></div></div></div></div><div class="post" id="body-wrap"><header class="post-bg fixed" id="page-header" style="background-image: url(/img/default_top_img.jpg);"><nav id="nav"><span id="blog-info"><a class="nav-site-title" href="/"><img class="site-icon" src="/img/logo.png" alt="Logo"><span class="site-name">Charlie Lai</span></a><a class="nav-page-title" href="/"><span class="site-name">MacOS 如何安裝 Anything LLM</span></a></span><div id="menus"><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> Home</span></a></div><div class="menus_item"><span class="site-page group"><i class="fa-fw fas fa-archive"></i><span> Archives</span><i class="fas fa-chevron-down"></i></span><ul class="menus_item_child"><li><a class="site-page child" href="/tags/"><i class="fa-fw fas fa-tags"></i><span> Tags</span></a></li><li><a class="site-page child" href="/categories/"><i class="fa-fw fas fa-folder-open"></i><span> Categories</span></a></li></ul></div><div class="menus_item"><a class="site-page" href="/archives/"><i class="fa-fw fas fa-calendar-alt"></i><span> Timeline</span></a></div><div class="menus_item"><span class="site-page group"><i class="fa-fw fas fa-heart"></i><span> About</span><i class="fas fa-chevron-down"></i></span><ul class="menus_item_child"><li><a class="site-page child" target="_blank" rel="noopener" href="https://github.com/CharlieLai0405"><i class="fa-fw fab fa-github"></i><span> Github</span></a></li><li><a class="site-page child" href="/charlie123456789@gmail.com"><i class="fa-fw fas fa-envelope"></i><span> Email</span></a></li></ul></div></div><div id="toggle-menu"><span class="site-page"><i class="fas fa-bars fa-fw"></i></span></div></div></nav><div id="post-info"><h1 class="post-title">MacOS 如何安裝 Anything LLM</h1><div id="post-meta"><div class="meta-firstline"><span class="post-meta-date"><i class="far fa-calendar-alt fa-fw post-meta-icon"></i><span class="post-meta-label">Created</span><time class="post-meta-date-created" datetime="2025-04-24T04:00:00.000Z" title="Created 2025-04-24 12:00:00">2025-04-24</time><span class="post-meta-separator">|</span><i class="fas fa-history fa-fw post-meta-icon"></i><span class="post-meta-label">Updated</span><time class="post-meta-date-updated" datetime="2025-07-08T12:34:03.906Z" title="Updated 2025-07-08 20:34:03">2025-07-08</time></span><span class="post-meta-categories"><span class="post-meta-separator">|</span><i class="fas fa-inbox fa-fw post-meta-icon"></i><a class="post-meta-categories" href="/categories/LLM/">LLM</a></span></div><div class="meta-secondline"><span class="post-meta-separator">|</span><span class="post-meta-pv-cv" id="" data-flag-title=""><i class="far fa-eye fa-fw post-meta-icon"></i><span class="post-meta-label">Post Views:</span><span id="busuanzi_value_page_pv"><i class="fa-solid fa-spinner fa-spin"></i></span></span></div></div></div></header><main class="layout" id="content-inner"><div id="post"><article class="container post-content" id="article-container"><h1 id="MacOS-如何安裝-Anything-LLM"><a href="#MacOS-如何安裝-Anything-LLM" class="headerlink" title="MacOS 如何安裝 Anything LLM"></a>MacOS 如何安裝 Anything LLM</h1><p>本篇教學將帶你從零開始，在 macOS 上部署 AnythingLLM，並整合本機 Ollama 模型。</p>
+<h2 id="步驟-1：安裝-Homebrew（如未安裝）"><a href="#步驟-1：安裝-Homebrew（如未安裝）" class="headerlink" title="步驟 1：安裝 Homebrew（如未安裝）"></a>步驟 1：安裝 Homebrew（如未安裝）</h2><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">/bin/bash -c <span class="string">&quot;<span class="subst">$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)</span>&quot;</span></span><br><span class="line">brew doctor</span><br><span class="line">````</span><br><span class="line"></span><br><span class="line"><span class="comment">## 步驟 2：安裝 Docker Desktop for Mac</span></span><br><span class="line"></span><br><span class="line">```bash</span><br><span class="line">brew install --cask docker</span><br><span class="line">open -a Docker  <span class="comment"># 啟動 Docker Desktop，首次啟動可能需手動授權</span></span><br></pre></td></tr></table></figure>
+
+<p>啟動後，請等候 Docker 小鯨魚圖示變成綠色，表示成功啟動。</p>
+<p>確認安裝成功：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">docker --version</span><br></pre></td></tr></table></figure>
+
+<h2 id="步驟-3：安裝-Node-js-和-Yarn"><a href="#步驟-3：安裝-Node-js-和-Yarn" class="headerlink" title="步驟 3：安裝 Node.js 和 Yarn"></a>步驟 3：安裝 Node.js 和 Yarn</h2><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">brew install node</span><br><span class="line">npm install -g yarn</span><br></pre></td></tr></table></figure>
+
+<p>確認 Node.js 版本為 18 或以上：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">node -v</span><br></pre></td></tr></table></figure>
+
+<h2 id="步驟-4：建立資料夾並拉取-AnythingLLM-映像檔"><a href="#步驟-4：建立資料夾並拉取-AnythingLLM-映像檔" class="headerlink" title="步驟 4：建立資料夾並拉取 AnythingLLM 映像檔"></a>步驟 4：建立資料夾並拉取 AnythingLLM 映像檔</h2><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">export</span> STORAGE_LOCATION=<span class="variable">$HOME</span>/anythingllm</span><br><span class="line"><span class="built_in">mkdir</span> -p <span class="string">&quot;<span class="variable">$STORAGE_LOCATION</span>&quot;</span></span><br><span class="line"><span class="built_in">touch</span> <span class="string">&quot;<span class="variable">$STORAGE_LOCATION</span>/.env&quot;</span></span><br><span class="line">docker pull mintplexlabs/anythingllm</span><br></pre></td></tr></table></figure>
+
+<h2 id="步驟-5：使用-Docker-執行-AnythingLLM"><a href="#步驟-5：使用-Docker-執行-AnythingLLM" class="headerlink" title="步驟 5：使用 Docker 執行 AnythingLLM"></a>步驟 5：使用 Docker 執行 AnythingLLM</h2><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">docker run -d -p 3001:3001 \</span><br><span class="line">  --cap-add SYS_ADMIN \</span><br><span class="line">  --add-host=host.docker.internal:host-gateway \</span><br><span class="line">  -v <span class="variable">$&#123;STORAGE_LOCATION&#125;</span>:/app/server/storage \</span><br><span class="line">  -v <span class="variable">$&#123;STORAGE_LOCATION&#125;</span>/.env:/app/server/.env \</span><br><span class="line">  -e STORAGE_DIR=<span class="string">&quot;/app/server/storage&quot;</span> \</span><br><span class="line">  mintplexlabs/anythingllm</span><br></pre></td></tr></table></figure>
+
+<p>執行後會返回類似這樣的容器 ID：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">a1b2c3d4e5f6...</span><br></pre></td></tr></table></figure>
+
+<h2 id="步驟-6：使用-AnythingLLM"><a href="#步驟-6：使用-AnythingLLM" class="headerlink" title="步驟 6：使用 AnythingLLM"></a>步驟 6：使用 AnythingLLM</h2><p>打開瀏覽器前往：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">http://localhost:3001</span><br></pre></td></tr></table></figure>
+
+<p>應該會看到 AnythingLLM 的 Web UI。</p>
+<h2 id="補充：接上本機的-Ollama-模型"><a href="#補充：接上本機的-Ollama-模型" class="headerlink" title="補充：接上本機的 Ollama 模型"></a>補充：接上本機的 Ollama 模型</h2><ol>
+<li>請先安裝並啟動 Ollama。</li>
+<li>修改 <code>.env</code> 檔案內容如下（可使用 <code>nano</code>、<code>vim</code> 或 <code>code</code> 編輯）：</li>
+</ol>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">echo</span> <span class="string">&#x27;OLLAMA_BASE_PATH=http://host.docker.internal:11434&#x27;</span> &gt;&gt; <span class="string">&quot;<span class="variable">$STORAGE_LOCATION</span>/.env&quot;</span></span><br><span class="line"><span class="built_in">echo</span> <span class="string">&#x27;EMBEDDING_BASE_PATH=http://host.docker.internal:11434&#x27;</span> &gt;&gt; <span class="string">&quot;<span class="variable">$STORAGE_LOCATION</span>/.env&quot;</span></span><br></pre></td></tr></table></figure>
+
+<ol start="3">
+<li>重新啟動容器（先停止再重啟）：</li>
+</ol>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">docker ps  <span class="comment"># 找到 Container ID</span></span><br><span class="line">docker stop &lt;CONTAINER_ID&gt;</span><br><span class="line">docker start &lt;CONTAINER_ID&gt;</span><br></pre></td></tr></table></figure>
+</article><div class="post-copyright"><div class="post-copyright__author"><span class="post-copyright-meta"><i class="fas fa-circle-user fa-fw"></i>Author: </span><span class="post-copyright-info"><a href="http://example.com">Charlie Lai</a></span></div><div class="post-copyright__type"><span class="post-copyright-meta"><i class="fas fa-square-arrow-up-right fa-fw"></i>Link: </span><span class="post-copyright-info"><a href="http://example.com/2025/04/24/Anything_LLM%20_MacOS/">http://example.com/2025/04/24/Anything_LLM _MacOS/</a></span></div><div class="post-copyright__notice"><span class="post-copyright-meta"><i class="fas fa-circle-exclamation fa-fw"></i>Copyright Notice: </span><span class="post-copyright-info">All articles on this blog are licensed under <a target="_blank" rel="noopener" href="https://creativecommons.org/licenses/by-nc-sa/4.0/">null</a> unless otherwise stated.</span></div></div><div class="tag_share"><div class="post-meta__tag-list"><a class="post-meta__tags" href="/tags/AnythingLLM/">AnythingLLM</a><a class="post-meta__tags" href="/tags/Docker/">Docker</a></div><div class="post-share"><div class="social-share" data-image="/img/charlie.jpg" data-sites="facebook,twitter,wechat,weibo,qq"></div><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/butterfly-extsrc/sharejs/dist/css/share.min.css" media="print" onload="this.media='all'"><script src="https://cdn.jsdelivr.net/npm/butterfly-extsrc/sharejs/dist/js/social-share.min.js" defer></script></div></div><nav class="pagination-post" id="pagination"><a class="pagination-related" href="/2025/04/24/Anything_LLM%20_Windows/" title="Windows 如何安裝 Anything LLM"><div class="cover" style="background: var(--default-bg-color)"></div><div class="info"><div class="info-1"><div class="info-item-1">Previous</div><div class="info-item-2">Windows 如何安裝 Anything LLM</div></div><div class="info-2"><div class="info-item-1">教你如何在 Windows 環境中透過 WSL 安裝與執行 AnythingLLM，包含 Docker、Node.js、Yarn 安裝與模型整合設定，完整部署流程一次搞懂。</div></div></div></a><a class="pagination-related" href="/2025/04/21/Build_Realtime_Voice_Agent_on_Amazon_Bedrock/" title="Build Realtime Voice Agent on Amazon Bedrock"><img class="cover" src="/img/Amazon_Bedrock.png" onerror="onerror=null;src='/img/404.jpg'" alt="cover of next post"><div class="info text-right"><div class="info-1"><div class="info-item-1">Next</div><div class="info-item-2">Build Realtime Voice Agent on Amazon Bedrock</div></div><div class="info-2"><div class="info-item-1">本文深入說明如何在 Amazon Bedrock 平台上構建即時語音代理服務，涵蓋應用架構、模型與 IAM 配置、CloudFront 建立、EC2 部署、Docker 安裝與 Astra 應用上線的全流程教學。</div></div></div></a></nav><div class="relatedPosts"><div class="headline"><i class="fas fa-thumbs-up fa-fw"></i><span>Related Articles</span></div><div class="relatedPosts-list"><a class="pagination-related" href="/2025/04/24/Anything_LLM%20_Windows/" title="Windows 如何安裝 Anything LLM"><div class="cover" style="background: var(--default-bg-color)"></div><div class="info text-center"><div class="info-1"><div class="info-item-1"><i class="far fa-calendar-alt fa-fw"></i> 2025-04-24</div><div class="info-item-2">Windows 如何安裝 Anything LLM</div></div><div class="info-2"><div class="info-item-1">教你如何在 Windows 環境中透過 WSL 安裝與執行 AnythingLLM，包含 Docker、Node.js、Yarn 安裝與模型整合設定，完整部署流程一次搞懂。</div></div></div></a></div></div></div><div class="aside-content" id="aside-content"><div class="card-widget card-info text-center"><div class="avatar-img"><img src="/img/charlie.jpg" onerror="this.onerror=null;this.src='/img/friend_404.gif'" alt="avatar"/></div><div class="author-info-name">Charlie Lai</div><div class="author-info-description">CS Master’s student @ NCU | C++ / Python / Docker | AI & backend projects</div><div class="site-data"><a href="/archives/"><div class="headline">Articles</div><div class="length-num">4</div></a><a href="/tags/"><div class="headline">Tags</div><div class="length-num">7</div></a><a href="/categories/"><div class="headline">Categories</div><div class="length-num">3</div></a></div><a id="card-info-btn" target="_blank" rel="noopener" href="https://github.com/CharlieLai0405"><i class="fab fa-github"></i><span>Follow Me</span></a><div class="card-info-social-icons"><a class="social-icon" href="https://github.com/CharlieLai0405" target="_blank" title="Github"><i class="fab fa-github" style="color: #24292e;"></i></a><a class="social-icon" href="mailto:charlie123456789@gmail.com" target="_blank" title="Email"><i class="fas fa-envelope" style="color: #4a7dbe;"></i></a></div></div><div class="card-widget card-announcement"><div class="item-headline"><i class="fas fa-bullhorn fa-shake"></i><span>Announcement</span></div><div class="announcement_content">Building, learning, and growing on the path to my dreams.</div></div><div class="sticky_layout"><div class="card-widget" id="card-toc"><div class="item-headline"><i class="fas fa-stream"></i><span>Contents</span><span class="toc-percentage"></span></div><div class="toc-content"><ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#MacOS-%E5%A6%82%E4%BD%95%E5%AE%89%E8%A3%9D-Anything-LLM"><span class="toc-number">1.</span> <span class="toc-text">MacOS 如何安裝 Anything LLM</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%AD%A5%E9%A9%9F-1%EF%BC%9A%E5%AE%89%E8%A3%9D-Homebrew%EF%BC%88%E5%A6%82%E6%9C%AA%E5%AE%89%E8%A3%9D%EF%BC%89"><span class="toc-number">1.1.</span> <span class="toc-text">步驟 1：安裝 Homebrew（如未安裝）</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%AD%A5%E9%A9%9F-3%EF%BC%9A%E5%AE%89%E8%A3%9D-Node-js-%E5%92%8C-Yarn"><span class="toc-number">1.2.</span> <span class="toc-text">步驟 3：安裝 Node.js 和 Yarn</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%AD%A5%E9%A9%9F-4%EF%BC%9A%E5%BB%BA%E7%AB%8B%E8%B3%87%E6%96%99%E5%A4%BE%E4%B8%A6%E6%8B%89%E5%8F%96-AnythingLLM-%E6%98%A0%E5%83%8F%E6%AA%94"><span class="toc-number">1.3.</span> <span class="toc-text">步驟 4：建立資料夾並拉取 AnythingLLM 映像檔</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%AD%A5%E9%A9%9F-5%EF%BC%9A%E4%BD%BF%E7%94%A8-Docker-%E5%9F%B7%E8%A1%8C-AnythingLLM"><span class="toc-number">1.4.</span> <span class="toc-text">步驟 5：使用 Docker 執行 AnythingLLM</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%AD%A5%E9%A9%9F-6%EF%BC%9A%E4%BD%BF%E7%94%A8-AnythingLLM"><span class="toc-number">1.5.</span> <span class="toc-text">步驟 6：使用 AnythingLLM</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E8%A3%9C%E5%85%85%EF%BC%9A%E6%8E%A5%E4%B8%8A%E6%9C%AC%E6%A9%9F%E7%9A%84-Ollama-%E6%A8%A1%E5%9E%8B"><span class="toc-number">1.6.</span> <span class="toc-text">補充：接上本機的 Ollama 模型</span></a></li></ol></li></ol></div></div><div class="card-widget card-recent-post"><div class="item-headline"><i class="fas fa-history"></i><span>Recent Posts</span></div><div class="aside-list"><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/2025/04/24/Anything_LLM%20_Windows/" title="Windows 如何安裝 Anything LLM">Windows 如何安裝 Anything LLM</a><time datetime="2025-07-08T12:34:41.342Z" title="Updated 2025-07-08 20:34:41">2025-07-08</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/2025/04/24/Anything_LLM%20_MacOS/" title="MacOS 如何安裝 Anything LLM">MacOS 如何安裝 Anything LLM</a><time datetime="2025-07-08T12:34:03.906Z" title="Updated 2025-07-08 20:34:03">2025-07-08</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2025/04/21/Build_Realtime_Voice_Agent_on_Amazon_Bedrock/" title="Build Realtime Voice Agent on Amazon Bedrock"><img src="/img/Amazon_Bedrock.png" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="Build Realtime Voice Agent on Amazon Bedrock"/></a><div class="content"><a class="title" href="/2025/04/21/Build_Realtime_Voice_Agent_on_Amazon_Bedrock/" title="Build Realtime Voice Agent on Amazon Bedrock">Build Realtime Voice Agent on Amazon Bedrock</a><time datetime="2025-07-01T13:33:48.488Z" title="Updated 2025-07-01 21:33:48">2025-07-01</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2025/04/19/Build_Chatbots_with_Amazon_Bedrock/" title="Build Chatbots with Amazon Bedrock"><img src="/img/Amazon_Bedrock.png" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="Build Chatbots with Amazon Bedrock"/></a><div class="content"><a class="title" href="/2025/04/19/Build_Chatbots_with_Amazon_Bedrock/" title="Build Chatbots with Amazon Bedrock">Build Chatbots with Amazon Bedrock</a><time datetime="2025-07-01T13:20:35.759Z" title="Updated 2025-07-01 21:20:35">2025-07-01</time></div></div></div></div></div></div></main><footer id="footer"><div id="footer-wrap"><div class="copyright">&copy;2025 By Charlie Lai</div><div class="framework-info"><span>Framework </span><a target="_blank" rel="noopener" href="https://hexo.io">Hexo 7.3.0</a><span class="footer-separator">|</span><span>Theme </span><a target="_blank" rel="noopener" href="https://github.com/jerryc127/hexo-theme-butterfly">Butterfly 5.3.5</a></div></div></footer></div><div id="rightside"><div id="rightside-config-hide"><button id="readmode" type="button" title="Reading Mode"><i class="fas fa-book-open"></i></button><button id="darkmode" type="button" title="Toggle Between Light and Dark Mode"><i class="fas fa-adjust"></i></button><button id="hide-aside-btn" type="button" title="Toggle Between Single-column and Double-column"><i class="fas fa-arrows-alt-h"></i></button></div><div id="rightside-config-show"><button id="rightside-config" type="button" title="Settings"><i class="fas fa-cog fa-spin"></i></button><button class="close" id="mobile-toc-button" type="button" title="Table of Contents"><i class="fas fa-list-ul"></i></button><button id="go-up" type="button" title="Back to Top"><span class="scroll-percent"></span><i class="fas fa-arrow-up"></i></button></div></div><div><script src="/js/utils.js"></script><script src="/js/main.js"></script><script src="https://cdn.jsdelivr.net/npm/@fancyapps/ui/dist/fancybox/fancybox.umd.min.js"></script><script src="https://cdn.jsdelivr.net/npm/node-snackbar/dist/snackbar.min.js"></script><div class="js-pjax"><script>(() => {
+  const runMermaid = ele => {
+    window.loadMermaid = true
+    const theme = document.documentElement.getAttribute('data-theme') === 'dark' ? 'dark' : 'default'
+
+    ele.forEach((item, index) => {
+      const mermaidSrc = item.firstElementChild
+      const mermaidThemeConfig = `%%{init:{ 'theme':'${theme}'}}%%\n`
+      const mermaidID = `mermaid-${index}`
+      const mermaidDefinition = mermaidThemeConfig + mermaidSrc.textContent
+
+      const renderFn = mermaid.render(mermaidID, mermaidDefinition)
+      const renderMermaid = svg => {
+        mermaidSrc.insertAdjacentHTML('afterend', svg)
+      }
+
+      // mermaid v9 and v10 compatibility
+      typeof renderFn === 'string' ? renderMermaid(renderFn) : renderFn.then(({ svg }) => renderMermaid(svg))
+    })
+  }
+
+  const codeToMermaid = () => {
+    const codeMermaidEle = document.querySelectorAll('pre > code.mermaid')
+    if (codeMermaidEle.length === 0) return
+
+    codeMermaidEle.forEach(ele => {
+      const preEle = document.createElement('pre')
+      preEle.className = 'mermaid-src'
+      preEle.hidden = true
+      preEle.textContent = ele.textContent
+      const newEle = document.createElement('div')
+      newEle.className = 'mermaid-wrap'
+      newEle.appendChild(preEle)
+      ele.parentNode.replaceWith(newEle)
+    })
+  }
+
+  const loadMermaid = () => {
+    if (true) codeToMermaid()
+    const $mermaid = document.querySelectorAll('#article-container .mermaid-wrap')
+    if ($mermaid.length === 0) return
+
+    const runMermaidFn = () => runMermaid($mermaid)
+    btf.addGlobalFn('themeChange', runMermaidFn, 'mermaid')
+    window.loadMermaid ? runMermaidFn() : btf.getScript('https://cdn.jsdelivr.net/npm/mermaid/dist/mermaid.min.js').then(runMermaidFn)
+  }
+
+  btf.addGlobalFn('encrypt', loadMermaid, 'mermaid')
+  window.pjax ? loadMermaid() : document.addEventListener('DOMContentLoaded', loadMermaid)
+})()</script></div><script id="canvas_nest" defer="defer" color="0,0,255" opacity="0.7" zIndex="-1" count="99" mobile="false" src="https://cdn.jsdelivr.net/npm/butterfly-extsrc/dist/canvas-nest.min.js"></script><script src="https://cdn.jsdelivr.net/npm/butterfly-extsrc/dist/activate-power-mode.min.js"></script><script>POWERMODE.colorful = true;
+POWERMODE.shake = true;
+POWERMODE.mobile = true;
+document.body.addEventListener('input', POWERMODE);
+</script><script id="click-show-text" src="https://cdn.jsdelivr.net/npm/butterfly-extsrc/dist/click-show-text.min.js" data-mobile="false" data-text="Me,Hire" data-fontsize="15px" data-random="false" async="async"></script><script async data-pjax src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script></div></body></html>
