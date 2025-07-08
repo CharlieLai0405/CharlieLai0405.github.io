@@ -1,0 +1,342 @@
+<!DOCTYPE html><html lang="en" data-theme="light"><head><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width, initial-scale=1.0,viewport-fit=cover"><title>第06講 Reliable Transmission | Charlie Lai</title><meta name="author" content="Charlie Lai"><meta name="copyright" content="Charlie Lai"><meta name="format-detection" content="telephone=no"><meta name="theme-color" content="#ffffff"><meta name="description" content="黃能富教授「計算機網路概論」第06講內容，深入介紹可靠傳輸協定，包含 Stop-and-Wait 與 Sliding Window Protocol（Go-Back-N 與 Selective Repeat），並探討 ACK 機制、Timeout、Window 設計、以及防止封包重傳問題等細節。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="第06講 Reliable Transmission">
+<meta property="og:url" content="http://example.com/2024/09/07/%E8%A8%88%E7%AE%97%E6%A9%9F%E7%B6%B2%E8%B7%AF%E6%A6%82%E8%AB%9606/index.html">
+<meta property="og:site_name" content="Charlie Lai">
+<meta property="og:description" content="黃能富教授「計算機網路概論」第06講內容，深入介紹可靠傳輸協定，包含 Stop-and-Wait 與 Sliding Window Protocol（Go-Back-N 與 Selective Repeat），並探討 ACK 機制、Timeout、Window 設計、以及防止封包重傳問題等細節。">
+<meta property="og:locale" content="en_US">
+<meta property="og:image" content="http://example.com/img/Networking.png">
+<meta property="article:published_time" content="2024-09-07T04:00:00.000Z">
+<meta property="article:modified_time" content="2025-07-08T13:58:45.560Z">
+<meta property="article:author" content="Charlie Lai">
+<meta property="article:tag" content="Reliable Transmission">
+<meta property="article:tag" content="ARQ">
+<meta property="article:tag" content="Stop-and-Wait">
+<meta property="article:tag" content="Sliding Window">
+<meta property="article:tag" content="Go-Back-N">
+<meta property="article:tag" content="Selective Repeat">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="http://example.com/img/Networking.png"><script type="application/ld+json">{
+  "@context": "https://schema.org",
+  "@type": "BlogPosting",
+  "headline": "第06講 Reliable Transmission",
+  "url": "http://example.com/2024/09/07/%E8%A8%88%E7%AE%97%E6%A9%9F%E7%B6%B2%E8%B7%AF%E6%A6%82%E8%AB%9606/",
+  "image": "http://example.com/img/Networking.png",
+  "datePublished": "2024-09-07T04:00:00.000Z",
+  "dateModified": "2025-07-08T13:58:45.560Z",
+  "author": [
+    {
+      "@type": "Person",
+      "name": "Charlie Lai",
+      "url": "http://example.com/"
+    }
+  ]
+}</script><link rel="shortcut icon" href="/img/logo.png"><link rel="canonical" href="http://example.com/2024/09/07/%E8%A8%88%E7%AE%97%E6%A9%9F%E7%B6%B2%E8%B7%AF%E6%A6%82%E8%AB%9606/index.html"><link rel="preconnect" href="//cdn.jsdelivr.net"/><link rel="preconnect" href="//busuanzi.ibruce.info"/><link rel="stylesheet" href="/css/index.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free/css/all.min.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/node-snackbar/dist/snackbar.min.css" media="print" onload="this.media='all'"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/ui/dist/fancybox/fancybox.min.css" media="print" onload="this.media='all'"><script>
+    (() => {
+      
+    const saveToLocal = {
+      set: (key, value, ttl) => {
+        if (!ttl) return
+        const expiry = Date.now() + ttl * 86400000
+        localStorage.setItem(key, JSON.stringify({ value, expiry }))
+      },
+      get: key => {
+        const itemStr = localStorage.getItem(key)
+        if (!itemStr) return undefined
+        const { value, expiry } = JSON.parse(itemStr)
+        if (Date.now() > expiry) {
+          localStorage.removeItem(key)
+          return undefined
+        }
+        return value
+      }
+    }
+
+    window.btf = {
+      saveToLocal,
+      getScript: (url, attr = {}) => new Promise((resolve, reject) => {
+        const script = document.createElement('script')
+        script.src = url
+        script.async = true
+        Object.entries(attr).forEach(([key, val]) => script.setAttribute(key, val))
+        script.onload = script.onreadystatechange = () => {
+          if (!script.readyState || /loaded|complete/.test(script.readyState)) resolve()
+        }
+        script.onerror = reject
+        document.head.appendChild(script)
+      }),
+      getCSS: (url, id) => new Promise((resolve, reject) => {
+        const link = document.createElement('link')
+        link.rel = 'stylesheet'
+        link.href = url
+        if (id) link.id = id
+        link.onload = link.onreadystatechange = () => {
+          if (!link.readyState || /loaded|complete/.test(link.readyState)) resolve()
+        }
+        link.onerror = reject
+        document.head.appendChild(link)
+      }),
+      addGlobalFn: (key, fn, name = false, parent = window) => {
+        if (!false && key.startsWith('pjax')) return
+        const globalFn = parent.globalFn || {}
+        globalFn[key] = globalFn[key] || {}
+        globalFn[key][name || Object.keys(globalFn[key]).length] = fn
+        parent.globalFn = globalFn
+      }
+    }
+  
+      
+      const activateDarkMode = () => {
+        document.documentElement.setAttribute('data-theme', 'dark')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#0d0d0d')
+        }
+      }
+      const activateLightMode = () => {
+        document.documentElement.setAttribute('data-theme', 'light')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#ffffff')
+        }
+      }
+
+      btf.activateDarkMode = activateDarkMode
+      btf.activateLightMode = activateLightMode
+
+      const theme = saveToLocal.get('theme')
+    
+          theme === 'dark' ? activateDarkMode() : theme === 'light' ? activateLightMode() : null
+        
+      
+      const asideStatus = saveToLocal.get('aside-status')
+      if (asideStatus !== undefined) {
+        document.documentElement.classList.toggle('hide-aside', asideStatus === 'hide')
+      }
+    
+      
+    const detectApple = () => {
+      if (/iPad|iPhone|iPod|Macintosh/.test(navigator.userAgent)) {
+        document.documentElement.classList.add('apple')
+      }
+    }
+    detectApple()
+  
+    })()
+  </script><script>const GLOBAL_CONFIG = {
+  root: '/',
+  algolia: undefined,
+  localSearch: undefined,
+  translate: undefined,
+  highlight: {"plugin":"highlight.js","highlightCopy":true,"highlightLang":true,"highlightHeightLimit":false,"highlightFullpage":false,"highlightMacStyle":false},
+  copy: {
+    success: 'Copy Successful',
+    error: 'Copy Failed',
+    noSupport: 'Browser Not Supported'
+  },
+  relativeDate: {
+    homepage: false,
+    post: false
+  },
+  runtime: '',
+  dateSuffix: {
+    just: 'Just now',
+    min: 'minutes ago',
+    hour: 'hours ago',
+    day: 'days ago',
+    month: 'months ago'
+  },
+  copyright: {"limitCount":150,"languages":{"author":"Author: Charlie Lai","link":"Link: ","source":"Source: Charlie Lai","info":"Copyright belongs to the author. For commercial use, please contact the author for authorization. For non-commercial use, please indicate the source."}},
+  lightbox: 'fancybox',
+  Snackbar: {"chs_to_cht":"You have switched to Traditional Chinese","cht_to_chs":"You have switched to Simplified Chinese","day_to_night":"You have switched to Dark Mode","night_to_day":"You have switched to Light Mode","bgLight":"#49b1f5","bgDark":"#1f1f1f","position":"bottom-left"},
+  infinitegrid: {
+    js: 'https://cdn.jsdelivr.net/npm/@egjs/infinitegrid/dist/infinitegrid.min.js',
+    buttonText: 'Load More'
+  },
+  isPhotoFigcaption: false,
+  islazyloadPlugin: false,
+  isAnchor: false,
+  percent: {
+    toc: true,
+    rightside: true,
+  },
+  autoDarkmode: false
+}</script><script id="config-diff">var GLOBAL_CONFIG_SITE = {
+  title: '第06講 Reliable Transmission',
+  isHighlightShrink: false,
+  isToc: true,
+  pageType: 'post'
+}</script><meta name="generator" content="Hexo 7.3.0"></head><body><div id="sidebar"><div id="menu-mask"></div><div id="sidebar-menus"><div class="avatar-img text-center"><img src="/img/charlie.jpg" onerror="this.onerror=null;this.src='/img/friend_404.gif'" alt="avatar"/></div><div class="site-data text-center"><a href="/archives/"><div class="headline">Articles</div><div class="length-num">12</div></a><a href="/tags/"><div class="headline">Tags</div><div class="length-num">44</div></a><a href="/categories/"><div class="headline">Categories</div><div class="length-num">4</div></a></div><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> Home</span></a></div><div class="menus_item"><span class="site-page group"><i class="fa-fw fas fa-archive"></i><span> Archives</span><i class="fas fa-chevron-down"></i></span><ul class="menus_item_child"><li><a class="site-page child" href="/tags/"><i class="fa-fw fas fa-tags"></i><span> Tags</span></a></li><li><a class="site-page child" href="/categories/"><i class="fa-fw fas fa-folder-open"></i><span> Categories</span></a></li></ul></div><div class="menus_item"><a class="site-page" href="/archives/"><i class="fa-fw fas fa-calendar-alt"></i><span> Timeline</span></a></div><div class="menus_item"><span class="site-page group"><i class="fa-fw fas fa-heart"></i><span> About</span><i class="fas fa-chevron-down"></i></span><ul class="menus_item_child"><li><a class="site-page child" target="_blank" rel="noopener" href="https://github.com/CharlieLai0405"><i class="fa-fw fab fa-github"></i><span> Github</span></a></li><li><a class="site-page child" href="/charlie123456789@gmail.com"><i class="fa-fw fas fa-envelope"></i><span> Email</span></a></li></ul></div></div></div></div><div class="post" id="body-wrap"><header class="post-bg fixed" id="page-header" style="background-image: url(/img/Networking.png);"><nav id="nav"><span id="blog-info"><a class="nav-site-title" href="/"><img class="site-icon" src="/img/logo.png" alt="Logo"><span class="site-name">Charlie Lai</span></a><a class="nav-page-title" href="/"><span class="site-name">第06講 Reliable Transmission</span></a></span><div id="menus"><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> Home</span></a></div><div class="menus_item"><span class="site-page group"><i class="fa-fw fas fa-archive"></i><span> Archives</span><i class="fas fa-chevron-down"></i></span><ul class="menus_item_child"><li><a class="site-page child" href="/tags/"><i class="fa-fw fas fa-tags"></i><span> Tags</span></a></li><li><a class="site-page child" href="/categories/"><i class="fa-fw fas fa-folder-open"></i><span> Categories</span></a></li></ul></div><div class="menus_item"><a class="site-page" href="/archives/"><i class="fa-fw fas fa-calendar-alt"></i><span> Timeline</span></a></div><div class="menus_item"><span class="site-page group"><i class="fa-fw fas fa-heart"></i><span> About</span><i class="fas fa-chevron-down"></i></span><ul class="menus_item_child"><li><a class="site-page child" target="_blank" rel="noopener" href="https://github.com/CharlieLai0405"><i class="fa-fw fab fa-github"></i><span> Github</span></a></li><li><a class="site-page child" href="/charlie123456789@gmail.com"><i class="fa-fw fas fa-envelope"></i><span> Email</span></a></li></ul></div></div><div id="toggle-menu"><span class="site-page"><i class="fas fa-bars fa-fw"></i></span></div></div></nav><div id="post-info"><h1 class="post-title">第06講 Reliable Transmission</h1><div id="post-meta"><div class="meta-firstline"><span class="post-meta-date"><i class="far fa-calendar-alt fa-fw post-meta-icon"></i><span class="post-meta-label">Created</span><time class="post-meta-date-created" datetime="2024-09-07T04:00:00.000Z" title="Created 2024-09-07 12:00:00">2024-09-07</time><span class="post-meta-separator">|</span><i class="fas fa-history fa-fw post-meta-icon"></i><span class="post-meta-label">Updated</span><time class="post-meta-date-updated" datetime="2025-07-08T13:58:45.560Z" title="Updated 2025-07-08 21:58:45">2025-07-08</time></span><span class="post-meta-categories"><span class="post-meta-separator">|</span><i class="fas fa-inbox fa-fw post-meta-icon"></i><a class="post-meta-categories" href="/categories/Computer-Networks/">Computer Networks</a></span></div><div class="meta-secondline"><span class="post-meta-separator">|</span><span class="post-meta-pv-cv" id="" data-flag-title=""><i class="far fa-eye fa-fw post-meta-icon"></i><span class="post-meta-label">Post Views:</span><span id="busuanzi_value_page_pv"><i class="fa-solid fa-spinner fa-spin"></i></span></span></div></div></div></header><main class="layout" id="content-inner"><div id="post"><article class="container post-content" id="article-container"><h1 id="第06講-Reliable-Transmission"><a href="#第06講-Reliable-Transmission" class="headerlink" title="第06講 Reliable Transmission"></a>第06講 Reliable Transmission</h1><p>計算機網路概論 — 黃能富教授</p>
+<h2 id="Introduction"><a href="#Introduction" class="headerlink" title="Introduction"></a>Introduction</h2><ul>
+<li>錯誤可透過 <strong>CRC</strong> 檢測</li>
+<li>錯誤的 frames 必須重送</li>
+<li>重送機制依賴：<ol>
+<li><strong>Acknowledgement (ACK)</strong>：receiver 確認後傳回控制 frame</li>
+<li><strong>Timeout</strong>：未收到 ACK 則視為失敗</li>
+</ol>
+</li>
+</ul>
+<blockquote>
+<p>ACK + Timeout &#x3D; <strong>Automatic Repeat reQuest (ARQ)</strong></p>
+</blockquote>
+<hr>
+<h2 id="Stop-and-Wait-Protocol（Alternating-Bit-Protocol）"><a href="#Stop-and-Wait-Protocol（Alternating-Bit-Protocol）" class="headerlink" title="Stop and Wait Protocol（Alternating Bit Protocol）"></a>Stop and Wait Protocol（Alternating Bit Protocol）</h2><ul>
+<li>傳送一個 frame 後，等待 ACK 才能繼續</li>
+<li>若發生 Timeout 或 ACK 遺失，則重送該 frame</li>
+</ul>
+<p><img src="https://hackmd.io/_uploads/HJSPuW1iR.jpg" alt="ABP Timeout"><br><img src="https://hackmd.io/_uploads/Hkumt-ko0.jpg" alt="ACK Timeout"></p>
+<ul>
+<li>問題：<strong>可能收到 duplicate frame</strong></li>
+<li>解法：加入 1-bit sequence number (0&#x2F;1)</li>
+</ul>
+<p><img src="https://hackmd.io/_uploads/S1pvpZJiA.jpg" alt="ABP with Sequence"></p>
+<blockquote>
+<p>效率低落：任一時刻只有一個封包在鏈路上</p>
+</blockquote>
+<hr>
+<h2 id="Sliding-Window-Protocol（Go-back-N）"><a href="#Sliding-Window-Protocol（Go-back-N）" class="headerlink" title="Sliding Window Protocol（Go-back-N）"></a>Sliding Window Protocol（Go-back-N）</h2><p>為解決效能低落問題 → 一次傳送多個封包</p>
+<p><img src="https://hackmd.io/_uploads/HJNgWGyi0.jpg" alt="SlidingWindow"></p>
+<h3 id="Sender-記錄變數"><a href="#Sender-記錄變數" class="headerlink" title="Sender 記錄變數"></a>Sender 記錄變數</h3><ol>
+<li><strong>SWS</strong>：Sending Window Size</li>
+<li><strong>LAR</strong>：Last ACK Received</li>
+<li><strong>LFS</strong>：Last Frame Sent</li>
+</ol>
+<p>條件：<code>LFS - LAR ≤ SWS</code></p>
+<p><img src="https://hackmd.io/_uploads/B1LWBfksC.jpg" alt="Sender ACK Update"><br><img src="https://hackmd.io/_uploads/SJ53XMyi0.jpg" alt="ACK(4) Received"><br><img src="https://hackmd.io/_uploads/Hyv-EMJiC.jpg" alt="空出封包位置"><br><img src="https://hackmd.io/_uploads/Skkw4fJo0.jpg" alt="補封包 11"></p>
+<blockquote>
+<p>每個封包皆有獨立 timer<br>滑動條件：收到 <code>ACK = LAR+1</code></p>
+</blockquote>
+<p><img src="https://hackmd.io/_uploads/HJfwPGJjC.jpg" alt="LAR移動條件"></p>
+<hr>
+<h3 id="Receiver-記錄變數"><a href="#Receiver-記錄變數" class="headerlink" title="Receiver 記錄變數"></a>Receiver 記錄變數</h3><ol>
+<li><strong>RWS</strong>：Receiving Window Size</li>
+<li><strong>LAF</strong>：Largest Acceptable Frame</li>
+<li><strong>LFR</strong>：Last Frame Received</li>
+</ol>
+<p>條件：<code>LAF - LFR ≤ RWS</code></p>
+<p><img src="https://hackmd.io/_uploads/rJrTjfyo0.jpg" alt="Receiver State"></p>
+<p>封包處理邏輯：</p>
+<ul>
+<li>若 SeqNum 超出視窗：丟棄</li>
+<li>若在視窗內：接受</li>
+<li>滑動條件：收到 <code>LFR + 1</code></li>
+</ul>
+<p><img src="https://hackmd.io/_uploads/H1lDM6zksC.jpg" alt="Receiver Window Slide"></p>
+<hr>
+<h3 id="Cumulative-Acknowledgement（累積確認）"><a href="#Cumulative-Acknowledgement（累積確認）" class="headerlink" title="Cumulative Acknowledgement（累積確認）"></a>Cumulative Acknowledgement（累積確認）</h3><ul>
+<li><code>SeqNumToAck = 2</code> 代表 0、1 已收到，但 2 尚未</li>
+<li>即使收到 3~6，也不會改變 ACK 值</li>
+</ul>
+<p><img src="https://hackmd.io/_uploads/Hk9f1X1iC.jpg" alt="Cumulative ACK"></p>
+<hr>
+<h3 id="Selective-Repeat（選擇重送）"><a href="#Selective-Repeat（選擇重送）" class="headerlink" title="Selective Repeat（選擇重送）"></a>Selective Repeat（選擇重送）</h3><ul>
+<li>每收到封包就回傳 ACK（即使重複或亂序）</li>
+<li>若收到 <strong>3 次 duplicate ACK</strong> ⇒ 封包遺失</li>
+</ul>
+<p><img src="https://hackmd.io/_uploads/HkslfPVjR.jpg" alt="Selective Repeat"></p>
+<hr>
+<h2 id="Sliding-Window-Protocol-的問題與改進"><a href="#Sliding-Window-Protocol-的問題與改進" class="headerlink" title="Sliding Window Protocol 的問題與改進"></a>Sliding Window Protocol 的問題與改進</h2><h3 id="問題："><a href="#問題：" class="headerlink" title="問題："></a>問題：</h3><ol>
+<li>Timeout 導致 throughput 下降</li>
+<li>Packet loss 使 channel 無法滿載</li>
+</ol>
+<h3 id="改進機制："><a href="#改進機制：" class="headerlink" title="改進機制："></a>改進機制：</h3><ol>
+<li><strong>Negative Acknowledgement (NAK)</strong>：主動通知錯誤封包</li>
+<li><strong>Additional ACK Info</strong>：提供更多回饋</li>
+<li><strong>Selective ACK</strong>：指名哪些封包已收到</li>
+</ol>
+<hr>
+<h3 id="如何選擇-Window-Size"><a href="#如何選擇-Window-Size" class="headerlink" title="如何選擇 Window Size"></a>如何選擇 Window Size</h3><ul>
+<li><strong>SWS &#x3D; Delay × Bandwidth</strong></li>
+<li><strong>RWS 彈性高</strong>：</li>
+</ul>
+<table>
+<thead>
+<tr>
+<th>RWS</th>
+<th>行為描述</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>1</td>
+<td>無法 buffer 亂序 frame</td>
+</tr>
+<tr>
+<td>SWS</td>
+<td>可完整 buffer 傳送端送來的 frame</td>
+</tr>
+</tbody></table>
+<ul>
+<li><code>RWS &gt; SWS</code> 無實質意義 → 浪費空間</li>
+</ul>
+<hr>
+<h2 id="有限的-Sequence-Number"><a href="#有限的-Sequence-Number" class="headerlink" title="有限的 Sequence Number"></a>有限的 Sequence Number</h2><p>因 SeqNum 會重複，需避免辨識錯誤：</p>
+<ul>
+<li>若 SeqNum 循環，需保證：<ul>
+<li><code>SWS + RWS ≤ MaxSeqNum + 1</code></li>
+<li>特別地，若 <code>RWS = SWS</code>，需保證：<code>SWS &lt; (MaxSeqNum + 1) / 2</code></li>
+</ul>
+</li>
+</ul>
+<p><img src="https://hackmd.io/_uploads/BJSZrEJj0.jpg" alt="SeqNum問題1"><br><img src="https://hackmd.io/_uploads/ryTCUNJj0.jpg" alt="SeqNum問題2"></p>
+<hr>
+<h2 id="Sliding-Window-的三大功能"><a href="#Sliding-Window-的三大功能" class="headerlink" title="Sliding Window 的三大功能"></a>Sliding Window 的三大功能</h2><ol>
+<li><strong>Reliable Transmission</strong>：可靠重傳</li>
+<li><strong>Preserve Order</strong>：維持封包順序</li>
+<li><strong>Flow Control</strong>：流量控制</li>
+</ol>
+<blockquote>
+<p>Receiver 透過設定 RWS 控制 Sender 傳送速率</p>
+</blockquote>
+<hr>
+</article><div class="post-copyright"><div class="post-copyright__author"><span class="post-copyright-meta"><i class="fas fa-circle-user fa-fw"></i>Author: </span><span class="post-copyright-info"><a href="http://example.com">Charlie Lai</a></span></div><div class="post-copyright__type"><span class="post-copyright-meta"><i class="fas fa-square-arrow-up-right fa-fw"></i>Link: </span><span class="post-copyright-info"><a target="_blank" rel="noopener" href="https://hackmd.io/@C-E/CEnote_計算機網路概論第06講">https://hackmd.io/@C-E/CEnote_計算機網路概論第06講</a></span></div><div class="post-copyright__notice"><span class="post-copyright-meta"><i class="fas fa-circle-exclamation fa-fw"></i>Copyright Notice: </span><span class="post-copyright-info">All articles on this blog are licensed under <a target="_blank" rel="noopener" href="https://creativecommons.org/licenses/by-nc-sa/4.0/">null</a> unless otherwise stated.</span></div></div><div class="tag_share"><div class="post-meta__tag-list"><a class="post-meta__tags" href="/tags/Reliable-Transmission/">Reliable Transmission</a><a class="post-meta__tags" href="/tags/ARQ/">ARQ</a><a class="post-meta__tags" href="/tags/Stop-and-Wait/">Stop-and-Wait</a><a class="post-meta__tags" href="/tags/Sliding-Window/">Sliding Window</a><a class="post-meta__tags" href="/tags/Go-Back-N/">Go-Back-N</a><a class="post-meta__tags" href="/tags/Selective-Repeat/">Selective Repeat</a></div><div class="post-share"><div class="social-share" data-image="/img/Networking.png" data-sites="facebook,twitter,wechat,weibo,qq"></div><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/butterfly-extsrc/sharejs/dist/css/share.min.css" media="print" onload="this.media='all'"><script src="https://cdn.jsdelivr.net/npm/butterfly-extsrc/sharejs/dist/js/social-share.min.js" defer></script></div></div><nav class="pagination-post" id="pagination"><a class="pagination-related" href="/2024/09/11/%E8%A8%88%E7%AE%97%E6%A9%9F%E7%B6%B2%E8%B7%AF%E6%A6%82%E8%AB%9607/" title="第07講 Internetworking"><img class="cover" src="/img/Networking.png" onerror="onerror=null;src='/img/404.jpg'" alt="cover of previous post"><div class="info"><div class="info-1"><div class="info-item-1">Previous</div><div class="info-item-2">第07講 Internetworking</div></div><div class="info-2"><div class="info-item-1">黃能富教授「計算機網路概論」第07講內容，探討 Internetworking 與 IP 協定的核心原理，包括 IP 服務模型、封包轉送與 Fragmentation、CIDR、ARP、DHCP、ICMP，以及兩大動態路由協定：Distance Vector 與 Link State Protocol，並深入說明 Count-to-Infinity 問題與 OSPF 演算法。</div></div></div></a><a class="pagination-related" href="/2024/09/01/%E8%A8%88%E7%AE%97%E6%A9%9F%E7%B6%B2%E8%B7%AF%E6%A6%82%E8%AB%9605/" title="第05講 IEEE 802.1Q Virtual Bridged LANs"><img class="cover" src="/img/Networking.png" onerror="onerror=null;src='/img/404.jpg'" alt="cover of next post"><div class="info text-right"><div class="info-1"><div class="info-item-1">Next</div><div class="info-item-2">第05講 IEEE 802.1Q Virtual Bridged LANs</div></div><div class="info-2"><div class="info-item-1">黃能富教授「計算機網路概論」第05講內容，介紹 IEEE 802.1Q 虛擬區域網路（VLAN）技術，涵蓋 VLAN 架構、標記機制、三種學習模式（SVL/IVL）、Tag 結構、VLAN 與 Spanning Tree 的整合方式等內容。</div></div></div></a></nav></div><div class="aside-content" id="aside-content"><div class="card-widget card-info text-center"><div class="avatar-img"><img src="/img/charlie.jpg" onerror="this.onerror=null;this.src='/img/friend_404.gif'" alt="avatar"/></div><div class="author-info-name">Charlie Lai</div><div class="author-info-description">CS Master’s student @ NCU | C++ / Python / Docker | AI & backend projects</div><div class="site-data"><a href="/archives/"><div class="headline">Articles</div><div class="length-num">12</div></a><a href="/tags/"><div class="headline">Tags</div><div class="length-num">44</div></a><a href="/categories/"><div class="headline">Categories</div><div class="length-num">4</div></a></div><a id="card-info-btn" target="_blank" rel="noopener" href="https://github.com/CharlieLai0405"><i class="fab fa-github"></i><span>Follow Me</span></a><div class="card-info-social-icons"><a class="social-icon" href="https://github.com/CharlieLai0405" target="_blank" title="Github"><i class="fab fa-github" style="color: #24292e;"></i></a><a class="social-icon" href="mailto:charlie123456789@gmail.com" target="_blank" title="Email"><i class="fas fa-envelope" style="color: #4a7dbe;"></i></a></div></div><div class="card-widget card-announcement"><div class="item-headline"><i class="fas fa-bullhorn fa-shake"></i><span>Announcement</span></div><div class="announcement_content">Building, learning, and growing on the path to my dreams.</div></div><div class="sticky_layout"><div class="card-widget" id="card-toc"><div class="item-headline"><i class="fas fa-stream"></i><span>Contents</span><span class="toc-percentage"></span></div><div class="toc-content"><ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#%E7%AC%AC06%E8%AC%9B-Reliable-Transmission"><span class="toc-number">1.</span> <span class="toc-text">第06講 Reliable Transmission</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#Introduction"><span class="toc-number">1.1.</span> <span class="toc-text">Introduction</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Stop-and-Wait-Protocol%EF%BC%88Alternating-Bit-Protocol%EF%BC%89"><span class="toc-number">1.2.</span> <span class="toc-text">Stop and Wait Protocol（Alternating Bit Protocol）</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Sliding-Window-Protocol%EF%BC%88Go-back-N%EF%BC%89"><span class="toc-number">1.3.</span> <span class="toc-text">Sliding Window Protocol（Go-back-N）</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#Sender-%E8%A8%98%E9%8C%84%E8%AE%8A%E6%95%B8"><span class="toc-number">1.3.1.</span> <span class="toc-text">Sender 記錄變數</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Receiver-%E8%A8%98%E9%8C%84%E8%AE%8A%E6%95%B8"><span class="toc-number">1.3.2.</span> <span class="toc-text">Receiver 記錄變數</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Cumulative-Acknowledgement%EF%BC%88%E7%B4%AF%E7%A9%8D%E7%A2%BA%E8%AA%8D%EF%BC%89"><span class="toc-number">1.3.3.</span> <span class="toc-text">Cumulative Acknowledgement（累積確認）</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Selective-Repeat%EF%BC%88%E9%81%B8%E6%93%87%E9%87%8D%E9%80%81%EF%BC%89"><span class="toc-number">1.3.4.</span> <span class="toc-text">Selective Repeat（選擇重送）</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Sliding-Window-Protocol-%E7%9A%84%E5%95%8F%E9%A1%8C%E8%88%87%E6%94%B9%E9%80%B2"><span class="toc-number">1.4.</span> <span class="toc-text">Sliding Window Protocol 的問題與改進</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%95%8F%E9%A1%8C%EF%BC%9A"><span class="toc-number">1.4.1.</span> <span class="toc-text">問題：</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%94%B9%E9%80%B2%E6%A9%9F%E5%88%B6%EF%BC%9A"><span class="toc-number">1.4.2.</span> <span class="toc-text">改進機制：</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%A6%82%E4%BD%95%E9%81%B8%E6%93%87-Window-Size"><span class="toc-number">1.4.3.</span> <span class="toc-text">如何選擇 Window Size</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%9C%89%E9%99%90%E7%9A%84-Sequence-Number"><span class="toc-number">1.5.</span> <span class="toc-text">有限的 Sequence Number</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Sliding-Window-%E7%9A%84%E4%B8%89%E5%A4%A7%E5%8A%9F%E8%83%BD"><span class="toc-number">1.6.</span> <span class="toc-text">Sliding Window 的三大功能</span></a></li></ol></li></ol></div></div><div class="card-widget card-recent-post"><div class="item-headline"><i class="fas fa-history"></i><span>Recent Posts</span></div><div class="aside-list"><div class="aside-list-item"><a class="thumbnail" href="/2024/09/15/%E8%A8%88%E7%AE%97%E6%A9%9F%E7%B6%B2%E8%B7%AF%E6%A6%82%E8%AB%9608/" title="第08講 Transport Layer Protocols"><img src="/img/Networking.png" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="第08講 Transport Layer Protocols"/></a><div class="content"><a class="title" href="/2024/09/15/%E8%A8%88%E7%AE%97%E6%A9%9F%E7%B6%B2%E8%B7%AF%E6%A6%82%E8%AB%9608/" title="第08講 Transport Layer Protocols">第08講 Transport Layer Protocols</a><time datetime="2025-07-08T14:15:05.469Z" title="Updated 2025-07-08 22:15:05">2025-07-08</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2024/09/11/%E8%A8%88%E7%AE%97%E6%A9%9F%E7%B6%B2%E8%B7%AF%E6%A6%82%E8%AB%9607/" title="第07講 Internetworking"><img src="/img/Networking.png" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="第07講 Internetworking"/></a><div class="content"><a class="title" href="/2024/09/11/%E8%A8%88%E7%AE%97%E6%A9%9F%E7%B6%B2%E8%B7%AF%E6%A6%82%E8%AB%9607/" title="第07講 Internetworking">第07講 Internetworking</a><time datetime="2025-07-08T14:03:53.712Z" title="Updated 2025-07-08 22:03:53">2025-07-08</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2024/09/07/%E8%A8%88%E7%AE%97%E6%A9%9F%E7%B6%B2%E8%B7%AF%E6%A6%82%E8%AB%9606/" title="第06講 Reliable Transmission"><img src="/img/Networking.png" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="第06講 Reliable Transmission"/></a><div class="content"><a class="title" href="/2024/09/07/%E8%A8%88%E7%AE%97%E6%A9%9F%E7%B6%B2%E8%B7%AF%E6%A6%82%E8%AB%9606/" title="第06講 Reliable Transmission">第06講 Reliable Transmission</a><time datetime="2025-07-08T13:58:45.560Z" title="Updated 2025-07-08 21:58:45">2025-07-08</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2024/09/01/%E8%A8%88%E7%AE%97%E6%A9%9F%E7%B6%B2%E8%B7%AF%E6%A6%82%E8%AB%9605/" title="第05講 IEEE 802.1Q Virtual Bridged LANs"><img src="/img/Networking.png" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="第05講 IEEE 802.1Q Virtual Bridged LANs"/></a><div class="content"><a class="title" href="/2024/09/01/%E8%A8%88%E7%AE%97%E6%A9%9F%E7%B6%B2%E8%B7%AF%E6%A6%82%E8%AB%9605/" title="第05講 IEEE 802.1Q Virtual Bridged LANs">第05講 IEEE 802.1Q Virtual Bridged LANs</a><time datetime="2025-07-08T13:50:38.523Z" title="Updated 2025-07-08 21:50:38">2025-07-08</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2024/08/27/%E8%A8%88%E7%AE%97%E6%A9%9F%E7%B6%B2%E8%B7%AF%E6%A6%82%E8%AB%9604/" title="第04講 IEEE 802.1D Spanning Tree Algorithm"><img src="/img/Networking.png" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="第04講 IEEE 802.1D Spanning Tree Algorithm"/></a><div class="content"><a class="title" href="/2024/08/27/%E8%A8%88%E7%AE%97%E6%A9%9F%E7%B6%B2%E8%B7%AF%E6%A6%82%E8%AB%9604/" title="第04講 IEEE 802.1D Spanning Tree Algorithm">第04講 IEEE 802.1D Spanning Tree Algorithm</a><time datetime="2025-07-08T13:50:12.697Z" title="Updated 2025-07-08 21:50:12">2025-07-08</time></div></div></div></div></div></div></main><footer id="footer"><div id="footer-wrap"><div class="copyright">&copy;2025 By Charlie Lai</div><div class="framework-info"><span>Framework </span><a target="_blank" rel="noopener" href="https://hexo.io">Hexo 7.3.0</a><span class="footer-separator">|</span><span>Theme </span><a target="_blank" rel="noopener" href="https://github.com/jerryc127/hexo-theme-butterfly">Butterfly 5.3.5</a></div></div></footer></div><div id="rightside"><div id="rightside-config-hide"><button id="readmode" type="button" title="Reading Mode"><i class="fas fa-book-open"></i></button><button id="darkmode" type="button" title="Toggle Between Light and Dark Mode"><i class="fas fa-adjust"></i></button><button id="hide-aside-btn" type="button" title="Toggle Between Single-column and Double-column"><i class="fas fa-arrows-alt-h"></i></button></div><div id="rightside-config-show"><button id="rightside-config" type="button" title="Settings"><i class="fas fa-cog fa-spin"></i></button><button class="close" id="mobile-toc-button" type="button" title="Table of Contents"><i class="fas fa-list-ul"></i></button><button id="go-up" type="button" title="Back to Top"><span class="scroll-percent"></span><i class="fas fa-arrow-up"></i></button></div></div><div><script src="/js/utils.js"></script><script src="/js/main.js"></script><script src="https://cdn.jsdelivr.net/npm/@fancyapps/ui/dist/fancybox/fancybox.umd.min.js"></script><script src="https://cdn.jsdelivr.net/npm/node-snackbar/dist/snackbar.min.js"></script><div class="js-pjax"><script>(() => {
+  const runMermaid = ele => {
+    window.loadMermaid = true
+    const theme = document.documentElement.getAttribute('data-theme') === 'dark' ? 'dark' : 'default'
+
+    ele.forEach((item, index) => {
+      const mermaidSrc = item.firstElementChild
+      const mermaidThemeConfig = `%%{init:{ 'theme':'${theme}'}}%%\n`
+      const mermaidID = `mermaid-${index}`
+      const mermaidDefinition = mermaidThemeConfig + mermaidSrc.textContent
+
+      const renderFn = mermaid.render(mermaidID, mermaidDefinition)
+      const renderMermaid = svg => {
+        mermaidSrc.insertAdjacentHTML('afterend', svg)
+      }
+
+      // mermaid v9 and v10 compatibility
+      typeof renderFn === 'string' ? renderMermaid(renderFn) : renderFn.then(({ svg }) => renderMermaid(svg))
+    })
+  }
+
+  const codeToMermaid = () => {
+    const codeMermaidEle = document.querySelectorAll('pre > code.mermaid')
+    if (codeMermaidEle.length === 0) return
+
+    codeMermaidEle.forEach(ele => {
+      const preEle = document.createElement('pre')
+      preEle.className = 'mermaid-src'
+      preEle.hidden = true
+      preEle.textContent = ele.textContent
+      const newEle = document.createElement('div')
+      newEle.className = 'mermaid-wrap'
+      newEle.appendChild(preEle)
+      ele.parentNode.replaceWith(newEle)
+    })
+  }
+
+  const loadMermaid = () => {
+    if (true) codeToMermaid()
+    const $mermaid = document.querySelectorAll('#article-container .mermaid-wrap')
+    if ($mermaid.length === 0) return
+
+    const runMermaidFn = () => runMermaid($mermaid)
+    btf.addGlobalFn('themeChange', runMermaidFn, 'mermaid')
+    window.loadMermaid ? runMermaidFn() : btf.getScript('https://cdn.jsdelivr.net/npm/mermaid/dist/mermaid.min.js').then(runMermaidFn)
+  }
+
+  btf.addGlobalFn('encrypt', loadMermaid, 'mermaid')
+  window.pjax ? loadMermaid() : document.addEventListener('DOMContentLoaded', loadMermaid)
+})()</script></div><script id="canvas_nest" defer="defer" color="0,0,255" opacity="0.7" zIndex="-1" count="99" mobile="false" src="https://cdn.jsdelivr.net/npm/butterfly-extsrc/dist/canvas-nest.min.js"></script><script src="https://cdn.jsdelivr.net/npm/butterfly-extsrc/dist/activate-power-mode.min.js"></script><script>POWERMODE.colorful = true;
+POWERMODE.shake = true;
+POWERMODE.mobile = true;
+document.body.addEventListener('input', POWERMODE);
+</script><script id="click-show-text" src="https://cdn.jsdelivr.net/npm/butterfly-extsrc/dist/click-show-text.min.js" data-mobile="false" data-text="Me,Hire" data-fontsize="15px" data-random="false" async="async"></script><script async data-pjax src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script></div></body></html>
