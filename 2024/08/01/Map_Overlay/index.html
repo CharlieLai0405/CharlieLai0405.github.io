@@ -1,0 +1,273 @@
+<!DOCTYPE html><html lang="en" data-theme="light"><head><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width, initial-scale=1.0,viewport-fit=cover"><title>Line Segment Intersection - Map Overlay | Charlie Lai</title><meta name="author" content="Charlie Lai"><meta name="copyright" content="Charlie Lai"><meta name="format-detection" content="telephone=no"><meta name="theme-color" content="#ffffff"><meta name="description" content="計算幾何筆記：掃描線算法、輸出敏感演算法、線段交點處理">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Line Segment Intersection - Map Overlay">
+<meta property="og:url" content="http://example.com/2024/08/01/Map_Overlay/index.html">
+<meta property="og:site_name" content="Charlie Lai">
+<meta property="og:description" content="計算幾何筆記：掃描線算法、輸出敏感演算法、線段交點處理">
+<meta property="og:locale" content="en_US">
+<meta property="og:image" content="http://example.com/img/Computational%20Geometry.png">
+<meta property="article:published_time" content="2024-08-01T04:00:00.000Z">
+<meta property="article:modified_time" content="2025-07-12T13:42:48.801Z">
+<meta property="article:author" content="Charlie Lai">
+<meta property="article:tag" content="Algorithm">
+<meta property="article:tag" content="Line Segment Intersection">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="http://example.com/img/Computational%20Geometry.png"><script type="application/ld+json">{
+  "@context": "https://schema.org",
+  "@type": "BlogPosting",
+  "headline": "Line Segment Intersection - Map Overlay",
+  "url": "http://example.com/2024/08/01/Map_Overlay/",
+  "image": "http://example.com/img/Computational%20Geometry.png",
+  "datePublished": "2024-08-01T04:00:00.000Z",
+  "dateModified": "2025-07-12T13:42:48.801Z",
+  "author": [
+    {
+      "@type": "Person",
+      "name": "Charlie Lai",
+      "url": "http://example.com/"
+    }
+  ]
+}</script><link rel="shortcut icon" href="/img/logo.png"><link rel="canonical" href="http://example.com/2024/08/01/Map_Overlay/index.html"><link rel="preconnect" href="//cdn.jsdelivr.net"/><link rel="preconnect" href="//busuanzi.ibruce.info"/><link rel="stylesheet" href="/css/index.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free/css/all.min.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/node-snackbar/dist/snackbar.min.css" media="print" onload="this.media='all'"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/ui/dist/fancybox/fancybox.min.css" media="print" onload="this.media='all'"><script>
+    (() => {
+      
+    const saveToLocal = {
+      set: (key, value, ttl) => {
+        if (!ttl) return
+        const expiry = Date.now() + ttl * 86400000
+        localStorage.setItem(key, JSON.stringify({ value, expiry }))
+      },
+      get: key => {
+        const itemStr = localStorage.getItem(key)
+        if (!itemStr) return undefined
+        const { value, expiry } = JSON.parse(itemStr)
+        if (Date.now() > expiry) {
+          localStorage.removeItem(key)
+          return undefined
+        }
+        return value
+      }
+    }
+
+    window.btf = {
+      saveToLocal,
+      getScript: (url, attr = {}) => new Promise((resolve, reject) => {
+        const script = document.createElement('script')
+        script.src = url
+        script.async = true
+        Object.entries(attr).forEach(([key, val]) => script.setAttribute(key, val))
+        script.onload = script.onreadystatechange = () => {
+          if (!script.readyState || /loaded|complete/.test(script.readyState)) resolve()
+        }
+        script.onerror = reject
+        document.head.appendChild(script)
+      }),
+      getCSS: (url, id) => new Promise((resolve, reject) => {
+        const link = document.createElement('link')
+        link.rel = 'stylesheet'
+        link.href = url
+        if (id) link.id = id
+        link.onload = link.onreadystatechange = () => {
+          if (!link.readyState || /loaded|complete/.test(link.readyState)) resolve()
+        }
+        link.onerror = reject
+        document.head.appendChild(link)
+      }),
+      addGlobalFn: (key, fn, name = false, parent = window) => {
+        if (!false && key.startsWith('pjax')) return
+        const globalFn = parent.globalFn || {}
+        globalFn[key] = globalFn[key] || {}
+        globalFn[key][name || Object.keys(globalFn[key]).length] = fn
+        parent.globalFn = globalFn
+      }
+    }
+  
+      
+      const activateDarkMode = () => {
+        document.documentElement.setAttribute('data-theme', 'dark')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#0d0d0d')
+        }
+      }
+      const activateLightMode = () => {
+        document.documentElement.setAttribute('data-theme', 'light')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#ffffff')
+        }
+      }
+
+      btf.activateDarkMode = activateDarkMode
+      btf.activateLightMode = activateLightMode
+
+      const theme = saveToLocal.get('theme')
+    
+          theme === 'dark' ? activateDarkMode() : theme === 'light' ? activateLightMode() : null
+        
+      
+      const asideStatus = saveToLocal.get('aside-status')
+      if (asideStatus !== undefined) {
+        document.documentElement.classList.toggle('hide-aside', asideStatus === 'hide')
+      }
+    
+      
+    const detectApple = () => {
+      if (/iPad|iPhone|iPod|Macintosh/.test(navigator.userAgent)) {
+        document.documentElement.classList.add('apple')
+      }
+    }
+    detectApple()
+  
+    })()
+  </script><script>const GLOBAL_CONFIG = {
+  root: '/',
+  algolia: undefined,
+  localSearch: undefined,
+  translate: undefined,
+  highlight: {"plugin":"highlight.js","highlightCopy":true,"highlightLang":true,"highlightHeightLimit":false,"highlightFullpage":false,"highlightMacStyle":false},
+  copy: {
+    success: 'Copy Successful',
+    error: 'Copy Failed',
+    noSupport: 'Browser Not Supported'
+  },
+  relativeDate: {
+    homepage: false,
+    post: false
+  },
+  runtime: '',
+  dateSuffix: {
+    just: 'Just now',
+    min: 'minutes ago',
+    hour: 'hours ago',
+    day: 'days ago',
+    month: 'months ago'
+  },
+  copyright: {"limitCount":150,"languages":{"author":"Author: Charlie Lai","link":"Link: ","source":"Source: Charlie Lai","info":"Copyright belongs to the author. For commercial use, please contact the author for authorization. For non-commercial use, please indicate the source."}},
+  lightbox: 'fancybox',
+  Snackbar: {"chs_to_cht":"You have switched to Traditional Chinese","cht_to_chs":"You have switched to Simplified Chinese","day_to_night":"You have switched to Dark Mode","night_to_day":"You have switched to Light Mode","bgLight":"#49b1f5","bgDark":"#1f1f1f","position":"bottom-left"},
+  infinitegrid: {
+    js: 'https://cdn.jsdelivr.net/npm/@egjs/infinitegrid/dist/infinitegrid.min.js',
+    buttonText: 'Load More'
+  },
+  isPhotoFigcaption: false,
+  islazyloadPlugin: false,
+  isAnchor: false,
+  percent: {
+    toc: true,
+    rightside: true,
+  },
+  autoDarkmode: false
+}</script><script id="config-diff">var GLOBAL_CONFIG_SITE = {
+  title: 'Line Segment Intersection - Map Overlay',
+  isHighlightShrink: false,
+  isToc: true,
+  pageType: 'post'
+}</script><meta name="generator" content="Hexo 7.3.0"></head><body><div id="sidebar"><div id="menu-mask"></div><div id="sidebar-menus"><div class="avatar-img text-center"><img src="/img/charlie.jpg" onerror="this.onerror=null;this.src='/img/friend_404.gif'" alt="avatar"/></div><div class="site-data text-center"><a href="/archives/"><div class="headline">Articles</div><div class="length-num">14</div></a><a href="/tags/"><div class="headline">Tags</div><div class="length-num">47</div></a><a href="/categories/"><div class="headline">Categories</div><div class="length-num">5</div></a></div><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> Home</span></a></div><div class="menus_item"><span class="site-page group"><i class="fa-fw fas fa-archive"></i><span> Archives</span><i class="fas fa-chevron-down"></i></span><ul class="menus_item_child"><li><a class="site-page child" href="/tags/"><i class="fa-fw fas fa-tags"></i><span> Tags</span></a></li><li><a class="site-page child" href="/categories/"><i class="fa-fw fas fa-folder-open"></i><span> Categories</span></a></li></ul></div><div class="menus_item"><a class="site-page" href="/archives/"><i class="fa-fw fas fa-calendar-alt"></i><span> Timeline</span></a></div><div class="menus_item"><span class="site-page group"><i class="fa-fw fas fa-heart"></i><span> About</span><i class="fas fa-chevron-down"></i></span><ul class="menus_item_child"><li><a class="site-page child" target="_blank" rel="noopener" href="https://github.com/CharlieLai0405"><i class="fa-fw fab fa-github"></i><span> Github</span></a></li><li><a class="site-page child" href="/charlie123456789@gmail.com"><i class="fa-fw fas fa-envelope"></i><span> Email</span></a></li></ul></div></div></div></div><div class="post" id="body-wrap"><header class="post-bg fixed" id="page-header" style="background-image: url(/img/Computational Geometry.png);"><nav id="nav"><span id="blog-info"><a class="nav-site-title" href="/"><img class="site-icon" src="/img/logo.png" alt="Logo"><span class="site-name">Charlie Lai</span></a><a class="nav-page-title" href="/"><span class="site-name">Line Segment Intersection - Map Overlay</span></a></span><div id="menus"><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> Home</span></a></div><div class="menus_item"><span class="site-page group"><i class="fa-fw fas fa-archive"></i><span> Archives</span><i class="fas fa-chevron-down"></i></span><ul class="menus_item_child"><li><a class="site-page child" href="/tags/"><i class="fa-fw fas fa-tags"></i><span> Tags</span></a></li><li><a class="site-page child" href="/categories/"><i class="fa-fw fas fa-folder-open"></i><span> Categories</span></a></li></ul></div><div class="menus_item"><a class="site-page" href="/archives/"><i class="fa-fw fas fa-calendar-alt"></i><span> Timeline</span></a></div><div class="menus_item"><span class="site-page group"><i class="fa-fw fas fa-heart"></i><span> About</span><i class="fas fa-chevron-down"></i></span><ul class="menus_item_child"><li><a class="site-page child" target="_blank" rel="noopener" href="https://github.com/CharlieLai0405"><i class="fa-fw fab fa-github"></i><span> Github</span></a></li><li><a class="site-page child" href="/charlie123456789@gmail.com"><i class="fa-fw fas fa-envelope"></i><span> Email</span></a></li></ul></div></div><div id="toggle-menu"><span class="site-page"><i class="fas fa-bars fa-fw"></i></span></div></div></nav><div id="post-info"><h1 class="post-title">Line Segment Intersection - Map Overlay</h1><div id="post-meta"><div class="meta-firstline"><span class="post-meta-date"><i class="far fa-calendar-alt fa-fw post-meta-icon"></i><span class="post-meta-label">Created</span><time class="post-meta-date-created" datetime="2024-08-01T04:00:00.000Z" title="Created 2024-08-01 12:00:00">2024-08-01</time><span class="post-meta-separator">|</span><i class="fas fa-history fa-fw post-meta-icon"></i><span class="post-meta-label">Updated</span><time class="post-meta-date-updated" datetime="2025-07-12T13:42:48.801Z" title="Updated 2025-07-12 21:42:48">2025-07-12</time></span><span class="post-meta-categories"><span class="post-meta-separator">|</span><i class="fas fa-inbox fa-fw post-meta-icon"></i><a class="post-meta-categories" href="/categories/Computational-Geometry/">Computational Geometry</a></span></div><div class="meta-secondline"><span class="post-meta-separator">|</span><span class="post-meta-pv-cv" id="" data-flag-title=""><i class="far fa-eye fa-fw post-meta-icon"></i><span class="post-meta-label">Post Views:</span><span id="busuanzi_value_page_pv"><i class="fa-solid fa-spinner fa-spin"></i></span></span></div></div></div></header><main class="layout" id="content-inner"><div id="post"><article class="container post-content" id="article-container"><h1 id="Line-Segment-Intersection-Map-Overlay"><a href="#Line-Segment-Intersection-Map-Overlay" class="headerlink" title="Line Segment Intersection - Map Overlay"></a>Line Segment Intersection - Map Overlay</h1><p>計算幾何 Min-Te Sun, Ph.D</p>
+<h2 id="Two-of-Classical-Computational-Geometry-Problems"><a href="#Two-of-Classical-Computational-Geometry-Problems" class="headerlink" title="Two of Classical Computational Geometry Problems"></a>Two of Classical Computational Geometry Problems</h2><ol>
+<li><strong>Line Segment Intersection</strong> → 找 rivers and roads 相交的地方</li>
+<li><strong>Computing the Overlay of Two Subdivisions</strong></li>
+</ol>
+<hr>
+<h2 id="Line-Segment-Intersection"><a href="#Line-Segment-Intersection" class="headerlink" title="Line Segment Intersection"></a>Line Segment Intersection</h2><ul>
+<li><strong>Problem statement</strong>:<br>給定一組在平面上的 $n$ 條封閉線段，找出它們之間所有交點</li>
+<li><strong>Time Complexity</strong> → Ω($n^2$)</li>
+</ul>
+<hr>
+<h2 id="Output-Sensitive-Algorithm"><a href="#Output-Sensitive-Algorithm" class="headerlink" title="Output-Sensitive Algorithm"></a>Output-Sensitive Algorithm</h2><ul>
+<li>當輸出較少時，可節省計算時間</li>
+<li>避免暴力檢查所有線段對：<ul>
+<li>若 <strong>x-intervals</strong> 沒有重疊，就不可能相交</li>
+<li>若 <strong>y-intervals</strong> 沒有重疊，也不可能相交</li>
+</ul>
+</li>
+<li>以上策略為 <strong>Plane Sweep Algorithm</strong>（掃描線演算法）<ul>
+<li>將線段分為「<strong>Active Segments</strong>」與「Inactive Segments」</li>
+<li><img src="https://hackmd.io/_uploads/SJ-9fyIcR.jpg" alt="Plane Sweep Example"></li>
+<li><strong>Observation</strong>：交點只會發生在相鄰線段</li>
+<li><strong>Event Points</strong>：所有線段的端點</li>
+<li>$\ell$ 為「<strong>掃描線 Sweep Line</strong>」</li>
+<li>在掃描時只測試「鄰居」是否相交</li>
+</ul>
+</li>
+</ul>
+<hr>
+<h3 id="演算法示意"><a href="#演算法示意" class="headerlink" title="演算法示意"></a>演算法示意</h3><p><img src="https://hackmd.io/_uploads/ByqxIkLqA.jpg" alt="演算法主流程"></p>
+<hr>
+<h3 id="HandleEventPoint-p"><a href="#HandleEventPoint-p" class="headerlink" title="HandleEventPoint( p )"></a>HandleEventPoint( p )</h3><p><img src="https://hackmd.io/_uploads/rJgYPyI5R.jpg" alt="HandleEventPoint"></p>
+<ul>
+<li>定義三個集合：<ul>
+<li><strong>U(p)</strong>：以 $p$ 為 <strong>upper endpoint</strong> 的線段集合</li>
+<li><strong>L(p)</strong>：以 $p$ 為 <strong>lower endpoint</strong> 的線段集合</li>
+<li><strong>C(p)</strong>：經過 $p$ 的線段集合（但 $p$ 不在端點）</li>
+</ul>
+</li>
+</ul>
+<hr>
+<h3 id="FindNewEvent-S-ell-S-r-p"><a href="#FindNewEvent-S-ell-S-r-p" class="headerlink" title="FindNewEvent($S_\ell$, $S_r$, $p$)"></a>FindNewEvent($S_\ell$, $S_r$, $p$)</h3><p><img src="https://hackmd.io/_uploads/B1_HP4Uq0.jpg" alt="FindNewEvent"></p>
+<hr>
+<h3 id="Example"><a href="#Example" class="headerlink" title="Example"></a>Example</h3><p><img src="https://hackmd.io/_uploads/S1tbTkUqC.jpg" alt="Example Event Point"></p>
+<ul>
+<li>若 $p$ 為掃描線上的事件點，則：<ul>
+<li><strong>U(p)</strong>：S2</li>
+<li><strong>L(p)</strong>：S4、S5</li>
+<li><strong>C(p)</strong>：S1、S3</li>
+</ul>
+</li>
+</ul>
+<hr>
+<h2 id="Time-Complexity"><a href="#Time-Complexity" class="headerlink" title="Time Complexity"></a>Time Complexity</h2><ul>
+<li>$O(n \log n + I \log n)$，其中 $I$ 為所有交點數量</li>
+<li>每個操作複雜度為 $O(\log n)$</li>
+</ul>
+</article><div class="post-copyright"><div class="post-copyright__author"><span class="post-copyright-meta"><i class="fas fa-circle-user fa-fw"></i>Author: </span><span class="post-copyright-info"><a href="http://example.com">Charlie Lai</a></span></div><div class="post-copyright__type"><span class="post-copyright-meta"><i class="fas fa-square-arrow-up-right fa-fw"></i>Link: </span><span class="post-copyright-info"><a target="_blank" rel="noopener" href="https://hackmd.io/@C-E/CEnote_MapOverlay">https://hackmd.io/@C-E/CEnote_MapOverlay</a></span></div><div class="post-copyright__notice"><span class="post-copyright-meta"><i class="fas fa-circle-exclamation fa-fw"></i>Copyright Notice: </span><span class="post-copyright-info">All articles on this blog are licensed under <a target="_blank" rel="noopener" href="https://creativecommons.org/licenses/by-nc-sa/4.0/">null</a> unless otherwise stated.</span></div></div><div class="tag_share"><div class="post-meta__tag-list"><a class="post-meta__tags" href="/tags/Algorithm/">Algorithm</a><a class="post-meta__tags" href="/tags/Line-Segment-Intersection/">Line Segment Intersection</a></div><div class="post-share"><div class="social-share" data-image="/img/Computational%20Geometry.png" data-sites="facebook,twitter,wechat,weibo,qq"></div><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/butterfly-extsrc/sharejs/dist/css/share.min.css" media="print" onload="this.media='all'"><script src="https://cdn.jsdelivr.net/npm/butterfly-extsrc/sharejs/dist/js/social-share.min.js" defer></script></div></div><nav class="pagination-post" id="pagination"><a class="pagination-related full-width" href="/2024/08/05/Voronoi_Diagrams/" title="Voronoi Diagrams - Post Office Problem"><img class="cover" src="/img/Computational%20Geometry.png" onerror="onerror=null;src='/img/404.jpg'" alt="cover of previous post"><div class="info"><div class="info-1"><div class="info-item-1">Previous</div><div class="info-item-2">Voronoi Diagrams - Post Office Problem</div></div><div class="info-2"><div class="info-item-1">計算幾何：Voronoi Diagram、Post Office 模型、垂直平分線構造與 Fortune's Algorithm</div></div></div></a></nav><div class="relatedPosts"><div class="headline"><i class="fas fa-thumbs-up fa-fw"></i><span>Related Articles</span></div><div class="relatedPosts-list"><a class="pagination-related" href="/2024/08/05/Voronoi_Diagrams/" title="Voronoi Diagrams - Post Office Problem"><img class="cover" src="/img/Computational%20Geometry.png" alt="cover"><div class="info text-center"><div class="info-1"><div class="info-item-1"><i class="far fa-calendar-alt fa-fw"></i> 2024-08-05</div><div class="info-item-2">Voronoi Diagrams - Post Office Problem</div></div><div class="info-2"><div class="info-item-1">計算幾何：Voronoi Diagram、Post Office 模型、垂直平分線構造與 Fortune's Algorithm</div></div></div></a></div></div></div><div class="aside-content" id="aside-content"><div class="card-widget card-info text-center"><div class="avatar-img"><img src="/img/charlie.jpg" onerror="this.onerror=null;this.src='/img/friend_404.gif'" alt="avatar"/></div><div class="author-info-name">Charlie Lai</div><div class="author-info-description">CS Master’s student @ NCU | C++ / Python / Docker | AI & backend projects</div><div class="site-data"><a href="/archives/"><div class="headline">Articles</div><div class="length-num">14</div></a><a href="/tags/"><div class="headline">Tags</div><div class="length-num">47</div></a><a href="/categories/"><div class="headline">Categories</div><div class="length-num">5</div></a></div><a id="card-info-btn" target="_blank" rel="noopener" href="https://github.com/CharlieLai0405"><i class="fab fa-github"></i><span>Follow Me</span></a><div class="card-info-social-icons"><a class="social-icon" href="https://github.com/CharlieLai0405" target="_blank" title="Github"><i class="fab fa-github" style="color: #24292e;"></i></a><a class="social-icon" href="mailto:charlie123456789@gmail.com" target="_blank" title="Email"><i class="fas fa-envelope" style="color: #4a7dbe;"></i></a></div></div><div class="card-widget card-announcement"><div class="item-headline"><i class="fas fa-bullhorn fa-shake"></i><span>Announcement</span></div><div class="announcement_content">Building, learning, and growing on the path to my dreams.</div></div><div class="sticky_layout"><div class="card-widget" id="card-toc"><div class="item-headline"><i class="fas fa-stream"></i><span>Contents</span><span class="toc-percentage"></span></div><div class="toc-content"><ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#Line-Segment-Intersection-Map-Overlay"><span class="toc-number">1.</span> <span class="toc-text">Line Segment Intersection - Map Overlay</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#Two-of-Classical-Computational-Geometry-Problems"><span class="toc-number">1.1.</span> <span class="toc-text">Two of Classical Computational Geometry Problems</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Line-Segment-Intersection"><span class="toc-number">1.2.</span> <span class="toc-text">Line Segment Intersection</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Output-Sensitive-Algorithm"><span class="toc-number">1.3.</span> <span class="toc-text">Output-Sensitive Algorithm</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%BC%94%E7%AE%97%E6%B3%95%E7%A4%BA%E6%84%8F"><span class="toc-number">1.3.1.</span> <span class="toc-text">演算法示意</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#HandleEventPoint-p"><span class="toc-number">1.3.2.</span> <span class="toc-text">HandleEventPoint( p )</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#FindNewEvent-S-ell-S-r-p"><span class="toc-number">1.3.3.</span> <span class="toc-text">FindNewEvent($S_\ell$, $S_r$, $p$)</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Example"><span class="toc-number">1.3.4.</span> <span class="toc-text">Example</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Time-Complexity"><span class="toc-number">1.4.</span> <span class="toc-text">Time Complexity</span></a></li></ol></li></ol></div></div><div class="card-widget card-recent-post"><div class="item-headline"><i class="fas fa-history"></i><span>Recent Posts</span></div><div class="aside-list"><div class="aside-list-item"><a class="thumbnail" href="/2024/08/05/Voronoi_Diagrams/" title="Voronoi Diagrams - Post Office Problem"><img src="/img/Computational%20Geometry.png" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="Voronoi Diagrams - Post Office Problem"/></a><div class="content"><a class="title" href="/2024/08/05/Voronoi_Diagrams/" title="Voronoi Diagrams - Post Office Problem">Voronoi Diagrams - Post Office Problem</a><time datetime="2025-07-12T13:45:11.451Z" title="Updated 2025-07-12 21:45:11">2025-07-12</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2024/08/01/Map_Overlay/" title="Line Segment Intersection - Map Overlay"><img src="/img/Computational%20Geometry.png" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="Line Segment Intersection - Map Overlay"/></a><div class="content"><a class="title" href="/2024/08/01/Map_Overlay/" title="Line Segment Intersection - Map Overlay">Line Segment Intersection - Map Overlay</a><time datetime="2025-07-12T13:42:48.801Z" title="Updated 2025-07-12 21:42:48">2025-07-12</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2024/09/15/%E8%A8%88%E7%AE%97%E6%A9%9F%E7%B6%B2%E8%B7%AF%E6%A6%82%E8%AB%9608/" title="第08講 Transport Layer Protocols"><img src="/img/Networking.png" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="第08講 Transport Layer Protocols"/></a><div class="content"><a class="title" href="/2024/09/15/%E8%A8%88%E7%AE%97%E6%A9%9F%E7%B6%B2%E8%B7%AF%E6%A6%82%E8%AB%9608/" title="第08講 Transport Layer Protocols">第08講 Transport Layer Protocols</a><time datetime="2025-07-08T14:15:05.469Z" title="Updated 2025-07-08 22:15:05">2025-07-08</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2024/09/11/%E8%A8%88%E7%AE%97%E6%A9%9F%E7%B6%B2%E8%B7%AF%E6%A6%82%E8%AB%9607/" title="第07講 Internetworking"><img src="/img/Networking.png" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="第07講 Internetworking"/></a><div class="content"><a class="title" href="/2024/09/11/%E8%A8%88%E7%AE%97%E6%A9%9F%E7%B6%B2%E8%B7%AF%E6%A6%82%E8%AB%9607/" title="第07講 Internetworking">第07講 Internetworking</a><time datetime="2025-07-08T14:03:53.712Z" title="Updated 2025-07-08 22:03:53">2025-07-08</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2024/09/07/%E8%A8%88%E7%AE%97%E6%A9%9F%E7%B6%B2%E8%B7%AF%E6%A6%82%E8%AB%9606/" title="第06講 Reliable Transmission"><img src="/img/Networking.png" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="第06講 Reliable Transmission"/></a><div class="content"><a class="title" href="/2024/09/07/%E8%A8%88%E7%AE%97%E6%A9%9F%E7%B6%B2%E8%B7%AF%E6%A6%82%E8%AB%9606/" title="第06講 Reliable Transmission">第06講 Reliable Transmission</a><time datetime="2025-07-08T13:58:45.560Z" title="Updated 2025-07-08 21:58:45">2025-07-08</time></div></div></div></div></div></div></main><footer id="footer"><div id="footer-wrap"><div class="copyright">&copy;2025 By Charlie Lai</div><div class="framework-info"><span>Framework </span><a target="_blank" rel="noopener" href="https://hexo.io">Hexo 7.3.0</a><span class="footer-separator">|</span><span>Theme </span><a target="_blank" rel="noopener" href="https://github.com/jerryc127/hexo-theme-butterfly">Butterfly 5.3.5</a></div></div></footer></div><div id="rightside"><div id="rightside-config-hide"><button id="readmode" type="button" title="Reading Mode"><i class="fas fa-book-open"></i></button><button id="darkmode" type="button" title="Toggle Between Light and Dark Mode"><i class="fas fa-adjust"></i></button><button id="hide-aside-btn" type="button" title="Toggle Between Single-column and Double-column"><i class="fas fa-arrows-alt-h"></i></button></div><div id="rightside-config-show"><button id="rightside-config" type="button" title="Settings"><i class="fas fa-cog fa-spin"></i></button><button class="close" id="mobile-toc-button" type="button" title="Table of Contents"><i class="fas fa-list-ul"></i></button><button id="go-up" type="button" title="Back to Top"><span class="scroll-percent"></span><i class="fas fa-arrow-up"></i></button></div></div><div><script src="/js/utils.js"></script><script src="/js/main.js"></script><script src="https://cdn.jsdelivr.net/npm/@fancyapps/ui/dist/fancybox/fancybox.umd.min.js"></script><script src="https://cdn.jsdelivr.net/npm/node-snackbar/dist/snackbar.min.js"></script><div class="js-pjax"><script>(() => {
+  const runMermaid = ele => {
+    window.loadMermaid = true
+    const theme = document.documentElement.getAttribute('data-theme') === 'dark' ? 'dark' : 'default'
+
+    ele.forEach((item, index) => {
+      const mermaidSrc = item.firstElementChild
+      const mermaidThemeConfig = `%%{init:{ 'theme':'${theme}'}}%%\n`
+      const mermaidID = `mermaid-${index}`
+      const mermaidDefinition = mermaidThemeConfig + mermaidSrc.textContent
+
+      const renderFn = mermaid.render(mermaidID, mermaidDefinition)
+      const renderMermaid = svg => {
+        mermaidSrc.insertAdjacentHTML('afterend', svg)
+      }
+
+      // mermaid v9 and v10 compatibility
+      typeof renderFn === 'string' ? renderMermaid(renderFn) : renderFn.then(({ svg }) => renderMermaid(svg))
+    })
+  }
+
+  const codeToMermaid = () => {
+    const codeMermaidEle = document.querySelectorAll('pre > code.mermaid')
+    if (codeMermaidEle.length === 0) return
+
+    codeMermaidEle.forEach(ele => {
+      const preEle = document.createElement('pre')
+      preEle.className = 'mermaid-src'
+      preEle.hidden = true
+      preEle.textContent = ele.textContent
+      const newEle = document.createElement('div')
+      newEle.className = 'mermaid-wrap'
+      newEle.appendChild(preEle)
+      ele.parentNode.replaceWith(newEle)
+    })
+  }
+
+  const loadMermaid = () => {
+    if (true) codeToMermaid()
+    const $mermaid = document.querySelectorAll('#article-container .mermaid-wrap')
+    if ($mermaid.length === 0) return
+
+    const runMermaidFn = () => runMermaid($mermaid)
+    btf.addGlobalFn('themeChange', runMermaidFn, 'mermaid')
+    window.loadMermaid ? runMermaidFn() : btf.getScript('https://cdn.jsdelivr.net/npm/mermaid/dist/mermaid.min.js').then(runMermaidFn)
+  }
+
+  btf.addGlobalFn('encrypt', loadMermaid, 'mermaid')
+  window.pjax ? loadMermaid() : document.addEventListener('DOMContentLoaded', loadMermaid)
+})()</script></div><script id="canvas_nest" defer="defer" color="0,0,255" opacity="0.7" zIndex="-1" count="99" mobile="false" src="https://cdn.jsdelivr.net/npm/butterfly-extsrc/dist/canvas-nest.min.js"></script><script src="https://cdn.jsdelivr.net/npm/butterfly-extsrc/dist/activate-power-mode.min.js"></script><script>POWERMODE.colorful = true;
+POWERMODE.shake = true;
+POWERMODE.mobile = true;
+document.body.addEventListener('input', POWERMODE);
+</script><script id="click-show-text" src="https://cdn.jsdelivr.net/npm/butterfly-extsrc/dist/click-show-text.min.js" data-mobile="false" data-text="Me,Hire" data-fontsize="15px" data-random="false" async="async"></script><script async data-pjax src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script></div></body></html>
